@@ -1,0 +1,104 @@
+/* עיצוב כללי */
+body {
+    direction: rtl;
+    font-family: "Arial Hebrew", Arial, "Segoe UI", "David", "Tahoma", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    line-height: 1.6;
+    text-align: center;
+}
+
+/* עיצוב כללי לתוכן */
+.content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+.welcome-section {
+    text-align: center;
+    padding: 20px;
+}
+
+/* עיצוב תפריט */
+.menu {
+    background-color: #e0e0e0;
+    padding: 10px;
+    text-align: center;
+}
+
+.menu a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #333;
+    font-size: large;
+}
+
+/* עיצוב טבלאות */
+.teams-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.teams-table th {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.teams-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+/* עיצוב טפסים */
+.form-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+/* עיצוב כללי לטבלאות ותוכן */
+table {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+td, th {
+    text-align: center;
+}
+
+.input-field {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.submit-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* עיצוב כותרות */
+h1, h2, h3 {
+    color: #333;
+}

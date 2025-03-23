@@ -1,0 +1,83 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPage.master.cs" Inherits="MasterPage" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>קבוצות כדורגל בישראל</title>
+    <asp:ContentPlaceHolder id="head" runat="server">
+    </asp:ContentPlaceHolder>
+    <link rel="stylesheet" href="styles.css"/> <%--קישור לקובץ העיצוב--%>
+    <style>
+        body {
+            direction: rtl;
+            font-family: "Arial Hebrew", Arial, "Segoe UI", "David", "Tahoma", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+        }
+        .school-logo {
+            max-width: 200px;
+        }
+        .menu {
+            background-color: #f0f0f0;
+            padding: 10px;
+            text-align: center;
+        }
+        .menu a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #333;
+            font-size: large;
+        }
+    </style>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div class="header" style="background-color: #e9ecef; margin-bottom: 20px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+                <img src="images/school-logo.png" alt="לוגו בית הספר" class="school-logo"/>
+                <h1 style="margin-top: 15px; color: #2c3e50;">קבוצות כדורגל בישראל</h1>
+            </div>
+        </div>
+        
+        <div class="menu" style="background-color: #4CAF50; margin-bottom: 20px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
+                <a href="Default.aspx" style="color: white;">דף הבית</a> |
+                <a href="WhyThisSubject.aspx" style="color: white;">למה בחרתי בנושא</a> |
+                <a href="TeamsTable.aspx" style="color: white;">טבלת קבוצות</a> |
+                <a href="AddTeam.aspx" style="color: white;">הוספת קבוצה</a> |
+                <a href="SiteMap.aspx" style="color: white;">מבנה האתר</a> |
+                <span id="authLinks" runat="server">
+                    <a href="SignIn.aspx" style="color: white;">התחברות</a> |
+                    <a href="SignUp.aspx" style="color: white;">הרשמה</a>
+                </span>
+                <asp:Label ID="UserInfoLabel" runat="server" Visible="false" ForeColor="White" Font-Bold="true"></asp:Label>
+            </div>
+        </div>
+
+        <div class="content">
+            <asp:ContentPlaceHolder id="ContentPlaceHolder1" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+
+        <div class="footer" style="background-color: #e9ecef; padding: 20px; margin-top: 30px; text-align: center; box-shadow: 0 -2px 4px rgba(0,0,0,0.1);">
+            <div style="max-width: 1000px; margin: 0 auto;">
+                <div style="float:right">
+                    <a href="mailto:student@school.com">צור קשר</a> |
+                    Contact us
+                </div>
+                <div style="float:left">
+                    <a href="#top">חזרה למעלה</a>
+                </div>
+                <div style="clear:both"></div>
+            </div>
+        </div>
+    </form>
+</body>
+</html>
