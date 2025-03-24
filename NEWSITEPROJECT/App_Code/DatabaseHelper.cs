@@ -12,12 +12,12 @@ public class DatabaseHelper
     private static string teamsXmlPath = HttpContext.Current.Server.MapPath("~/App_Data/teams.xml");
     private static string usersXmlPath = HttpContext.Current.Server.MapPath("~/App_Data/users.xml");
     private static bool? oleDbAvailable = null;
-    
+
     private static bool IsOleDbAvailable()
     {
         if (oleDbAvailable.HasValue)
             return oleDbAvailable.Value;
-            
+
         try
         {
             using (OleDbConnection conn = new OleDbConnection(connectionString))
@@ -29,10 +29,10 @@ public class DatabaseHelper
         {
             oleDbAvailable = false;
         }
-        
+
         return oleDbAvailable.Value;
     }
-    
+
     public static DataTable GetTeams()
     {
         DataTable teamsTable = new DataTable();
@@ -40,12 +40,12 @@ public class DatabaseHelper
         teamsTable.Columns.Add("Championships");
         teamsTable.Columns.Add("Stars");
         teamsTable.Columns.Add("CurrentStanding");
-        
+
         if (File.Exists(teamsXmlPath))
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(teamsXmlPath);
-            
+
             XmlNodeList teamNodes = doc.SelectNodes("//Team");
             foreach (XmlNode teamNode in teamNodes)
             {
@@ -53,13 +53,13 @@ public class DatabaseHelper
                 string championships = teamNode.SelectSingleNode("Championships").InnerText;
                 string stars = teamNode.SelectSingleNode("Stars").InnerText;
                 string standing = teamNode.SelectSingleNode("CurrentStanding").InnerText;
-                
+
                 teamsTable.Rows.Add(teamName, championships, stars, standing);
             }
-            
+
             return teamsTable;
         }
-        
+
         if (IsOleDbAvailable())
         {
             try
@@ -70,7 +70,7 @@ public class DatabaseHelper
                 connection.Open();
                 adapter.Fill(teamsTable);
                 connection.Close();
-                
+
                 return teamsTable;
             }
             catch
@@ -82,10 +82,10 @@ public class DatabaseHelper
         {
             AddDefaultTeams(teamsTable);
         }
-        
+
         return teamsTable;
     }
-    
+
     private static void AddDefaultTeams(DataTable teamsTable)
     {
         teamsTable.Rows.Add("מכבי חיפה", "14", "יעקב חודורוב, רוני רוזנטל", "1");
@@ -93,7 +93,7 @@ public class DatabaseHelper
         teamsTable.Rows.Add("מכבי תל אביב", "23", "אבי נימני, איל בן זקן", "3");
         teamsTable.Rows.Add("בית''ר ירושלים", "6", "אורי מלמיליאן, דני נוימן", "4");
     }
-    
+
     public static void AddTeam(string teamName, string championships, string stars, string currentStanding)
     {
         AddTeamToXml(teamName, championships, stars, currentStanding);
@@ -104,12 +104,12 @@ public class DatabaseHelper
                 OleDbConnection connection = new OleDbConnection(connectionString);
                 string query = "INSERT INTO Teams (TeamName, Championships, Stars, CurrentStanding) VALUES (?, ?, ?, ?)";
                 OleDbCommand command = new OleDbCommand(query, connection);
-                
+
                 command.Parameters.AddWithValue("@TeamName", teamName);
                 command.Parameters.AddWithValue("@Championships", championships);
                 command.Parameters.AddWithValue("@Stars", stars);
                 command.Parameters.AddWithValue("@CurrentStanding", currentStanding);
-                
+
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
@@ -119,7 +119,7 @@ public class DatabaseHelper
             }
         }
     }
-    
+
     public static DataTable SearchTeams(string teamName, string minChampionships)
     {
         DataTable allTeams = GetTeams();
@@ -127,14 +127,14 @@ public class DatabaseHelper
         {
             return allTeams;
         }
-        
+
         DataTable filteredTeams = allTeams.Clone();
         int minChamps = 0;
         if (!string.IsNullOrEmpty(minChampionships))
         {
             int.TryParse(minChampionships, out minChamps);
         }
-        
+
         foreach (DataRow row in allTeams.Rows)
         {
             bool nameMatch = true;
@@ -143,23 +143,23 @@ public class DatabaseHelper
             {
                 nameMatch = row["TeamName"].ToString().Contains(teamName);
             }
-            
+
             if (!string.IsNullOrEmpty(minChampionships))
             {
                 int teamChamps = 0;
                 int.TryParse(row["Championships"].ToString(), out teamChamps);
                 champsMatch = teamChamps >= minChamps;
             }
-            
+
             if (nameMatch && champsMatch)
             {
                 filteredTeams.ImportRow(row);
             }
         }
-        
+
         return filteredTeams;
     }
-    
+
     public static bool UpdateTeam(string teamName, string championships, string stars, string currentStanding)
     {
         bool xmlSuccess = UpdateTeamInXml(teamName, championships, stars, currentStanding);
@@ -170,12 +170,12 @@ public class DatabaseHelper
                 OleDbConnection connection = new OleDbConnection(connectionString);
                 string query = "UPDATE Teams SET Championships = ?, Stars = ?, CurrentStanding = ? WHERE TeamName = ?";
                 OleDbCommand command = new OleDbCommand(query, connection);
-                
+
                 command.Parameters.AddWithValue("@Championships", championships);
                 command.Parameters.AddWithValue("@Stars", stars);
                 command.Parameters.AddWithValue("@CurrentStanding", currentStanding);
                 command.Parameters.AddWithValue("@TeamName", teamName);
-                
+
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
@@ -184,32 +184,31 @@ public class DatabaseHelper
             {
             }
         }
-        
+
         return xmlSuccess;
     }
-    
+
     private static bool UpdateTeamInXml(string teamName, string championships, string stars, string currentStanding)
     {
         if (!File.Exists(teamsXmlPath))
             return false;
-            
+
         try
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(teamsXmlPath);
-            
-            XmlNode teamNode = doc.SelectSingleNode($"//Team[TeamName='{teamName}']");
-            
+
+            XmlNode teamNode = doc.SelectSingleNode("//Team[TeamName='" + teamName + "']");
             if (teamNode != null)
             {
                 teamNode.SelectSingleNode("Championships").InnerText = championships;
                 teamNode.SelectSingleNode("Stars").InnerText = stars;
                 teamNode.SelectSingleNode("CurrentStanding").InnerText = currentStanding;
-                
+
                 doc.Save(teamsXmlPath);
                 return true;
             }
-            
+
             return false;
         }
         catch
@@ -217,7 +216,7 @@ public class DatabaseHelper
             return false;
         }
     }
-    
+
     public static bool DeleteTeam(string teamName)
     {
         bool xmlSuccess = DeleteTeamFromXml(teamName);
@@ -228,9 +227,9 @@ public class DatabaseHelper
                 OleDbConnection connection = new OleDbConnection(connectionString);
                 string query = "DELETE FROM Teams WHERE TeamName = ?";
                 OleDbCommand command = new OleDbCommand(query, connection);
-                
+
                 command.Parameters.AddWithValue("@TeamName", teamName);
-                
+
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
@@ -239,30 +238,31 @@ public class DatabaseHelper
             {
             }
         }
-        
+
         return xmlSuccess;
     }
-    
+
     private static bool DeleteTeamFromXml(string teamName)
     {
         if (!File.Exists(teamsXmlPath))
             return false;
-            
+
         try
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(teamsXmlPath);
-            
-            XmlNode teamNode = doc.SelectSingleNode($"//Team[TeamName='{teamName}']");
-            
+
+            // Changed from string interpolation to concatenation
+            XmlNode teamNode = doc.SelectSingleNode("//Team[TeamName='" + teamName + "']");
+
             if (teamNode != null)
             {
                 teamNode.ParentNode.RemoveChild(teamNode);
-                
+
                 doc.Save(teamsXmlPath);
                 return true;
             }
-            
+
             return false;
         }
         catch
@@ -270,13 +270,13 @@ public class DatabaseHelper
             return false;
         }
     }
-    
+
     private static void AddTeamToXml(string teamName, string championships, string stars, string currentStanding)
     {
         try
         {
             XmlDocument doc = new XmlDocument();
-            
+
             if (File.Exists(teamsXmlPath))
             {
                 doc.Load(teamsXmlPath);
@@ -285,30 +285,30 @@ public class DatabaseHelper
             {
                 XmlDeclaration declaration = doc.CreateXmlDeclaration("1.0", "utf-8", null);
                 doc.AppendChild(declaration);
-                
+
                 XmlElement teamsRoot = doc.CreateElement("Teams");
                 doc.AppendChild(teamsRoot);
             }
-            
+
             XmlElement root = doc.DocumentElement;
-            
+
             XmlElement teamElement = doc.CreateElement("Team");
             XmlElement nameElement = doc.CreateElement("TeamName");
             nameElement.InnerText = teamName;
             teamElement.AppendChild(nameElement);
-            
+
             XmlElement championshipsElement = doc.CreateElement("Championships");
             championshipsElement.InnerText = championships;
             teamElement.AppendChild(championshipsElement);
-            
+
             XmlElement starsElement = doc.CreateElement("Stars");
             starsElement.InnerText = stars;
             teamElement.AppendChild(starsElement);
-            
+
             XmlElement standingElement = doc.CreateElement("CurrentStanding");
             standingElement.InnerText = currentStanding;
             teamElement.AppendChild(standingElement);
-            
+
             root.AppendChild(teamElement);
             doc.Save(teamsXmlPath);
         }
@@ -316,20 +316,21 @@ public class DatabaseHelper
         {
         }
     }
-    
+
     public static bool AuthenticateUser(string username, string password, out string userRole)
     {
         userRole = "";
-        
+
         if (File.Exists(usersXmlPath))
         {
             try
             {
                 XmlDocument doc = new XmlDocument();
                 doc.Load(usersXmlPath);
-                
-                XmlNode userNode = doc.SelectSingleNode($"//User[Username='{username}' and Password='{password}']");
-                
+
+                // Changed from string interpolation to concatenation
+                XmlNode userNode = doc.SelectSingleNode("//User[Username='" + username + "' and Password='" + password + "']");
+
                 if (userNode != null)
                 {
                     userRole = userNode.SelectSingleNode("UserRole").InnerText;
@@ -340,7 +341,7 @@ public class DatabaseHelper
             {
             }
         }
-        
+
         if (IsOleDbAvailable())
         {
             try
@@ -348,14 +349,14 @@ public class DatabaseHelper
                 OleDbConnection connection = new OleDbConnection(connectionString);
                 string query = "SELECT UserRole FROM Users WHERE Username = ? AND Password = ?";
                 OleDbCommand command = new OleDbCommand(query, connection);
-                
+
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@Password", password);
-                
+
                 connection.Open();
                 object result = command.ExecuteScalar();
                 connection.Close();
-                
+
                 if (result != null)
                 {
                     userRole = result.ToString();
@@ -366,10 +367,10 @@ public class DatabaseHelper
             {
             }
         }
-        
+
         return false;
     }
-    
+
     public static bool UsernameExists(string username)
     {
         if (File.Exists(usersXmlPath))
@@ -378,8 +379,9 @@ public class DatabaseHelper
             {
                 XmlDocument doc = new XmlDocument();
                 doc.Load(usersXmlPath);
-                
-                XmlNode userNode = doc.SelectSingleNode($"//User[Username='{username}']");
+
+                // Changed from string interpolation to concatenation
+                XmlNode userNode = doc.SelectSingleNode("//User[Username='" + username + "']");
                 if (userNode != null)
                     return true;
             }
@@ -387,7 +389,7 @@ public class DatabaseHelper
             {
             }
         }
-        
+
         if (IsOleDbAvailable())
         {
             try
@@ -395,28 +397,28 @@ public class DatabaseHelper
                 OleDbConnection connection = new OleDbConnection(connectionString);
                 string query = "SELECT COUNT(*) FROM Users WHERE Username = ?";
                 OleDbCommand command = new OleDbCommand(query, connection);
-                
+
                 command.Parameters.AddWithValue("@Username", username);
-                
+
                 connection.Open();
                 int count = (int)command.ExecuteScalar();
                 connection.Close();
-                
+
                 return count > 0;
             }
             catch
             {
             }
         }
-        
+
         return false;
     }
-    
+
     public static bool RegisterUser(string username, string password)
     {
         if (UsernameExists(username))
             return false;
-            
+
         if (!AddUserToXml(username, password, "user"))
             return false;
         if (IsOleDbAvailable())
@@ -426,11 +428,11 @@ public class DatabaseHelper
                 OleDbConnection connection = new OleDbConnection(connectionString);
                 string query = "INSERT INTO Users (Username, Password, UserRole) VALUES (?, ?, ?)";
                 OleDbCommand command = new OleDbCommand(query, connection);
-                
+
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@Password", password);
                 command.Parameters.AddWithValue("@UserRole", "user");
-                
+
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
@@ -439,16 +441,16 @@ public class DatabaseHelper
             {
             }
         }
-        
+
         return true;
     }
-    
+
     private static bool AddUserToXml(string username, string password, string userRole)
     {
         try
         {
             XmlDocument doc = new XmlDocument();
-            
+
             if (File.Exists(usersXmlPath))
             {
                 doc.Load(usersXmlPath);
@@ -457,30 +459,30 @@ public class DatabaseHelper
             {
                 XmlDeclaration declaration = doc.CreateXmlDeclaration("1.0", "utf-8", null);
                 doc.AppendChild(declaration);
-                
+
                 XmlElement usersRoot = doc.CreateElement("Users");
                 doc.AppendChild(usersRoot);
             }
-            
+
             XmlElement root = doc.DocumentElement;
-            
+
             XmlElement userElement = doc.CreateElement("User");
             XmlElement usernameElement = doc.CreateElement("Username");
             usernameElement.InnerText = username;
             userElement.AppendChild(usernameElement);
-            
+
             XmlElement passwordElement = doc.CreateElement("Password");
             passwordElement.InnerText = password;
             userElement.AppendChild(passwordElement);
-            
+
             XmlElement roleElement = doc.CreateElement("UserRole");
             roleElement.InnerText = userRole;
             userElement.AppendChild(roleElement);
-            
+
             XmlElement dateElement = doc.CreateElement("RegistrationDate");
             dateElement.InnerText = DateTime.Now.ToString("yyyy-MM-dd");
             userElement.AppendChild(dateElement);
-            
+
             root.AppendChild(userElement);
             doc.Save(usersXmlPath);
             return true;

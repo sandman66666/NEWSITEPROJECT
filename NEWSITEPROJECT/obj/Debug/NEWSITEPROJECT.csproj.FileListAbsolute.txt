@@ -1,2 +1,4 @@
 C:\Users\USER\Documents\mycode\myfatar\NEWSITEPROJECT\NEWSITEPROJECT\obj\Debug\NEWSITEPROJECT.csproj.AssemblyReference.cache
 C:\Users\USER\Documents\mycode\myfatar\NEWSITEPROJECT\NEWSITEPROJECT\obj\Debug\NEWSITEPROJECT.csproj.CoreCompileInputs.cache
+Z:\Downloads\NEWSITEPROJECT\NEWSITEPROJECT\obj\Debug\NEWSITEPROJECT.csproj.AssemblyReference.cache
+Z:\Downloads\NEWSITEPROJECT\NEWSITEPROJECT\obj\Debug\NEWSITEPROJECT.csproj.CoreCompileInputs.cache

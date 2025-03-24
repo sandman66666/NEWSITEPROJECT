@@ -1,1 +1,1 @@
-﻿<%@ Application Codebehind="Global.asax.cs" Inherits="myfatar.Global" Language="C#" %>
+﻿<%@ Application Codebehind="Global.asax.cs" Inherits="NEWSITEPROJECT.Global" Language="C#" %>
