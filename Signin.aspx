@@ -1,77 +1,29 @@
-<%@ Page Language="C#" MasterPageFile="~/MasterPage.master" %>
-<%@ Import Namespace="System.Web.UI" %>
+<%@ Page Title="התחברות" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Signin.aspx.cs" Inherits="NEWSITEPROJECT.SignIn" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
-<script runat="server">
-    protected void Page_Load(object sender, EventArgs e)
-    {
-        if (!IsPostBack)
-        {
-            if (Request.QueryString["logout"] != null && Request.QueryString["logout"] == "true")
-            {
-                Session.Clear();
-                Session.Abandon();
-                ScriptManager.RegisterStartupScript(this, GetType(), "alertScript", "alert('Logged out successfully!');", true);
-                Response.Redirect("SignIn.aspx", true);
-                return;
-            }
-
-            if (Session["LoggedIn"] != null && (bool)Session["LoggedIn"] == true)
-            {
-                Response.Redirect("Default.aspx");
-            }
-        }
-    }
-
-    protected void SignInButton_Click(object sender, EventArgs e)
-    {
-        string username = UserNameTextBox.Text.Trim();
-        string password = PasswordTextBox.Text.Trim();
-        string userRole = "";
-
-        // Use the unqualified name since there's only one accessible version in this context
-        if (DatabaseHelper.AuthenticateUser(username, password, out userRole))
-        {
-            Session["LoggedIn"] = true;
-            Session["Username"] = username;
-            Session["UserRole"] = userRole;
-
-            ScriptManager.RegisterStartupScript(this, GetType(), "alertScript", "alert('Logged in successfully!');", true);
-            Response.Redirect("Default.aspx");
-        }
-        else
-        {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alertScript", "alert('Invalid username or password');", true);
-        }
-    }
-</script>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #f5f5f5;
-    }
     .login-container {
-        background-color: white;
+        margin: 20px auto;
+        max-width: 450px;
+        background: white;
         padding: 30px;
         border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        width: 350px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        text-align: center;
     }
     .form-group {
-        margin-bottom: 15px;
+        margin-bottom: 20px;
+        text-align: right;
     }
     .form-group label {
         display: block;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
         font-weight: bold;
+        color: #555;
     }
     .form-group input {
         width: 100%;
-        padding: 8px;
+        padding: 10px;
         border: 1px solid #ddd;
         border-radius: 4px;
         box-sizing: border-box;
@@ -79,19 +31,19 @@
     .login-btn {
         background-color: #4CAF50;
         color: white;
-        padding: 10px 15px;
+        padding: 12px 30px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        width: 100%;
         font-size: 16px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .login-btn:hover {
         background-color: #45a049;
     }
     .signup-link {
         text-align: center;
-        margin-top: 15px;
+        margin-top: 20px;
     }
     .signup-link a {
         color: #4CAF50;
@@ -101,9 +53,9 @@
         text-decoration: underline;
     }
     h2 {
-        text-align: center;
-        color: #333;
-        margin-bottom: 20px;
+        color: #2c3e50;
+        font-size: 28px;
+        margin-bottom: 30px;
     }
 </style>
 </asp:Content>
@@ -111,18 +63,18 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
     <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
     <div class="login-container">
-        <h2>Sign In</h2>
+        <h2>התחברות</h2>
         <div class="form-group">
-            <asp:Label ID="UserNameLabel" runat="server" Text="Username:"></asp:Label>
-            <asp:TextBox ID="UserNameTextBox" runat="server"></asp:TextBox>
+            <asp:Label ID="UserNameLabel" runat="server" Text="שם משתמש:"></asp:Label>
+            <asp:TextBox ID="UserNameTextBox" runat="server" CssClass="input-field"></asp:TextBox>
         </div>
         <div class="form-group">
-            <asp:Label ID="PasswordLabel" runat="server" Text="Password:"></asp:Label>
-            <asp:TextBox ID="PasswordTextBox" runat="server" TextMode="Password"></asp:TextBox>
+            <asp:Label ID="PasswordLabel" runat="server" Text="סיסמה:"></asp:Label>
+            <asp:TextBox ID="PasswordTextBox" runat="server" TextMode="Password" CssClass="input-field"></asp:TextBox>
         </div>
-        <asp:Button ID="SignInButton" runat="server" Text="Sign In" CssClass="login-btn" OnClick="SignInButton_Click" />
+        <asp:Button ID="SignInButton" runat="server" Text="התחבר" CssClass="login-btn" OnClick="SignInButton_Click" />
         <div class="signup-link">
-            <p>Don't have an account? <a href="SignUp.aspx">Sign Up</a></p>
+            <p>אין לך חשבון? <a href="SignUp.aspx">הירשם כאן</a></p>
         </div>
     </div>
 </asp:Content>

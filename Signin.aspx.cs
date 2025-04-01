@@ -1,7 +1,6 @@
 using System;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using NEWSITEPROJECT; // Make sure this namespace is included
 
 namespace NEWSITEPROJECT
 {
@@ -15,7 +14,11 @@ namespace NEWSITEPROJECT
                 {
                     Session.Clear();
                     Session.Abandon();
-                    Response.Write("<script>alert('Logged out successfully!');</script>");
+
+                    // Use ScriptManager for better alert handling
+                    ScriptManager.RegisterStartupScript(this, GetType(), "alertScript",
+                        "alert('התנתקת בהצלחה');", true);
+
                     Response.Redirect("SignIn.aspx", true);
                     return;
                 }
@@ -33,20 +36,34 @@ namespace NEWSITEPROJECT
             string password = PasswordTextBox.Text.Trim();
             string userRole = "";
 
-            // Using the fully qualified name with namespace
-            if (NEWSITEPROJECT.DatabaseHelper.AuthenticateUser(username, password, out userRole))
+            // Validate input
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                ShowMessage("נא למלא שם משתמש וסיסמה");
+                return;
+            }
+
+            // Authenticate
+            if (DatabaseHelper.AuthenticateUser(username, password, out userRole))
             {
                 Session["LoggedIn"] = true;
                 Session["Username"] = username;
                 Session["UserRole"] = userRole;
 
-                Response.Write("<script>alert('Logged in successfully!');</script>");
+                ShowMessage("התחברת בהצלחה");
                 Response.Redirect("Default.aspx");
             }
             else
             {
-                Response.Write("<script>alert('Invalid username or password');</script>");
+                ShowMessage("שם משתמש או סיסמה לא נכונים");
             }
+        }
+
+        private void ShowMessage(string message)
+        {
+            // Use ScriptManager for better alert handling
+            ScriptManager.RegisterStartupScript(this, GetType(), "alertScript",
+                string.Format("alert('{0}');", message), true);
         }
     }
 }

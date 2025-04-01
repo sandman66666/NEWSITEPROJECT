@@ -1,6 +1,8 @@
 using System;
 using System.Web.UI;
-using NEWSITEPROJECT; // Make sure this namespace is included
+using System.Text.RegularExpressions;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace NEWSITEPROJECT
 {
@@ -23,28 +25,58 @@ namespace NEWSITEPROJECT
             string password = PasswordTextBox.Text.Trim();
             string email = EmailTextBox.Text.Trim();
 
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            // Validate form inputs
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(email))
             {
-                Response.Write("<script>alert('Please fill in all required fields');</script>");
+                ShowErrorMessage("יש למלא את כל השדות הנדרשים");
                 return;
             }
 
-            // Using the fully qualified name with namespace
-            if (NEWSITEPROJECT.DatabaseHelper.UsernameExists(username))
+            // Username validation - at least 3 characters, alphanumeric
+            if (username.Length < 3 || !Regex.IsMatch(username, @"^[a-zA-Z0-9_]+$"))
             {
-                Response.Write("<script>alert('Username already exists, please choose another one');</script>");
+                ShowErrorMessage("שם המשתמש חייב להכיל לפחות 3 תווים ורק אותיות באנגלית, מספרים וקו תחתון");
                 return;
             }
 
-            if (NEWSITEPROJECT.DatabaseHelper.RegisterUser(username, password, email))
+            // Password validation - at least 6 characters, one digit, one letter
+            if (password.Length < 6 || !Regex.IsMatch(password, @"^(?=.*[A-Za-z])(?=.*\d).+$"))
             {
-                Response.Write("<script>alert('Registration completed successfully!');</script>");
-                Response.Redirect("SignIn.aspx");
+                ShowErrorMessage("הסיסמה חייבת להכיל לפחות 6 תווים, אות אחת ומספר אחד");
+                return;
+            }
+
+            // Email validation
+            if (!Regex.IsMatch(email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
+            {
+                ShowErrorMessage("כתובת האימייל אינה תקינה");
+                return;
+            }
+
+            // Check if username already exists
+            if (DatabaseHelper.UsernameExists(username))
+            {
+                ShowErrorMessage("שם המשתמש כבר קיים במערכת, אנא בחר שם אחר");
+                return;
+            }
+
+            // Register the user
+            if (DatabaseHelper.RegisterUser(username, password, email))
+            {
+                // Show success message
+                ClientScript.RegisterStartupScript(this.GetType(), "RegistrationSuccess",
+                    "alert('ההרשמה הושלמה בהצלחה!'); window.location='SignIn.aspx';", true);
             }
             else
             {
-                Response.Write("<script>alert('An error occurred during registration, please try again');</script>");
+                ShowErrorMessage("אירעה שגיאה במהלך ההרשמה, אנא נסה שנית מאוחר יותר");
             }
+        }
+
+        private void ShowErrorMessage(string message)
+        {
+            ClientScript.RegisterStartupScript(this.GetType(), "ErrorMessage",
+                "alert('" + message + "');", true);
         }
     }
 }

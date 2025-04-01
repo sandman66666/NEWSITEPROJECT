@@ -9,7 +9,7 @@ namespace NEWSITEPROJECT
         {
             if (!IsPostBack)
             {
-                string imagePath = ResolveUrl("~/images/schoolLogo.png");
+                string imagePath = ResolveUrl("~/images1/schoolLogo.png");
                 schoolLogo.ImageUrl = imagePath;
             }
         }

@@ -7,14 +7,16 @@ using System.Web;
 using System.Xml;
 using System.Data.SqlClient;
 using System.Configuration;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace NEWSITEPROJECT
 {
     public static class DatabaseHelper
     {
         private static string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["TeamsConnectionString"].ConnectionString;
-        private static string teamsXmlPath = HttpContext.Current.Server.MapPath("~/App_Data/teams.xml");
-        private static string usersXmlPath = HttpContext.Current.Server.MapPath("~/App_Data/users.xml");
+        private static string teamsXmlPath = HttpContext.Current.Server.MapPath("~/App_Data/Teams.xml");
+        private static string usersXmlPath = HttpContext.Current.Server.MapPath("~/App_Data/Users.xml");
         private static bool? oleDbAvailable = null;
 
         private static bool IsOleDbAvailable()
@@ -26,6 +28,8 @@ namespace NEWSITEPROJECT
             {
                 using (OleDbConnection conn = new OleDbConnection(connectionString))
                 {
+                    conn.Open();
+                    conn.Close();
                     oleDbAvailable = true;
                 }
             }
@@ -47,21 +51,30 @@ namespace NEWSITEPROJECT
 
             if (File.Exists(teamsXmlPath))
             {
-                XmlDocument doc = new XmlDocument();
-                doc.Load(teamsXmlPath);
-
-                XmlNodeList teamNodes = doc.SelectNodes("//Team");
-                foreach (XmlNode teamNode in teamNodes)
+                try
                 {
-                    string teamName = teamNode.SelectSingleNode("TeamName").InnerText;
-                    string championships = teamNode.SelectSingleNode("Championships").InnerText;
-                    string stars = teamNode.SelectSingleNode("Stars").InnerText;
-                    string standing = teamNode.SelectSingleNode("CurrentStanding").InnerText;
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(teamsXmlPath);
 
-                    teamsTable.Rows.Add(teamName, championships, stars, standing);
+                    XmlNodeList teamNodes = doc.SelectNodes("//Team");
+                    foreach (XmlNode teamNode in teamNodes)
+                    {
+                        string teamName = teamNode.SelectSingleNode("TeamName").InnerText;
+                        string championships = teamNode.SelectSingleNode("Championships").InnerText;
+                        string stars = teamNode.SelectSingleNode("Stars").InnerText;
+                        string standing = teamNode.SelectSingleNode("CurrentStanding").InnerText;
+
+                        teamsTable.Rows.Add(teamName, championships, stars, standing);
+                    }
+
+                    return teamsTable;
                 }
-
-                return teamsTable;
+                catch (Exception ex)
+                {
+                    // Log the error for debugging
+                    System.Diagnostics.Debug.WriteLine("Error loading teams XML: " + ex.Message);
+                    // Continue to try database or add default teams
+                }
             }
 
             if (IsOleDbAvailable())
@@ -77,8 +90,10 @@ namespace NEWSITEPROJECT
 
                     return teamsTable;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    // Log the error for debugging
+                    System.Diagnostics.Debug.WriteLine("Error loading teams from database: " + ex.Message);
                     AddDefaultTeams(teamsTable);
                 }
             }
@@ -100,27 +115,43 @@ namespace NEWSITEPROJECT
 
         public static void AddTeam(string teamName, string championships, string stars, string currentStanding)
         {
-            AddTeamToXml(teamName, championships, stars, currentStanding);
-            if (IsOleDbAvailable())
+            try
             {
-                try
-                {
-                    OleDbConnection connection = new OleDbConnection(connectionString);
-                    string query = "INSERT INTO Teams (TeamName, Championships, Stars, CurrentStanding) VALUES (?, ?, ?, ?)";
-                    OleDbCommand command = new OleDbCommand(query, connection);
+                // First make sure the team is added to XML - this is our primary storage
+                AddTeamToXml(teamName, championships, stars, currentStanding);
 
-                    command.Parameters.AddWithValue("@TeamName", teamName);
-                    command.Parameters.AddWithValue("@Championships", championships);
-                    command.Parameters.AddWithValue("@Stars", stars);
-                    command.Parameters.AddWithValue("@CurrentStanding", currentStanding);
-
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                    connection.Close();
-                }
-                catch
+                // Then try to add it to the database if available
+                if (IsOleDbAvailable())
                 {
+                    try
+                    {
+                        using (OleDbConnection connection = new OleDbConnection(connectionString))
+                        {
+                            string query = "INSERT INTO Teams (TeamName, Championships, Stars, CurrentStanding) VALUES (?, ?, ?, ?)";
+                            OleDbCommand command = new OleDbCommand(query, connection);
+
+                            command.Parameters.AddWithValue("@TeamName", teamName);
+                            command.Parameters.AddWithValue("@Championships", championships);
+                            command.Parameters.AddWithValue("@Stars", stars);
+                            command.Parameters.AddWithValue("@CurrentStanding", currentStanding);
+
+                            connection.Open();
+                            command.ExecuteNonQuery();
+                            connection.Close();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log database error but continue since XML is our primary storage
+                        System.Diagnostics.Debug.WriteLine("Error adding team to database: " + ex.Message);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                System.Diagnostics.Debug.WriteLine("Error in AddTeam: " + ex.Message);
+                throw new Exception("Failed to add team: " + ex.Message);
             }
         }
 
@@ -166,30 +197,44 @@ namespace NEWSITEPROJECT
 
         public static bool UpdateTeam(string teamName, string championships, string stars, string currentStanding)
         {
-            bool xmlSuccess = UpdateTeamInXml(teamName, championships, stars, currentStanding);
-            if (IsOleDbAvailable())
+            try 
             {
-                try
+                bool xmlSuccess = UpdateTeamInXml(teamName, championships, stars, currentStanding);
+                
+                if (IsOleDbAvailable())
                 {
-                    OleDbConnection connection = new OleDbConnection(connectionString);
-                    string query = "UPDATE Teams SET Championships = ?, Stars = ?, CurrentStanding = ? WHERE TeamName = ?";
-                    OleDbCommand command = new OleDbCommand(query, connection);
+                    try
+                    {
+                        using (OleDbConnection connection = new OleDbConnection(connectionString))
+                        {
+                            string query = "UPDATE Teams SET Championships = ?, Stars = ?, CurrentStanding = ? WHERE TeamName = ?";
+                            OleDbCommand command = new OleDbCommand(query, connection);
 
-                    command.Parameters.AddWithValue("@Championships", championships);
-                    command.Parameters.AddWithValue("@Stars", stars);
-                    command.Parameters.AddWithValue("@CurrentStanding", currentStanding);
-                    command.Parameters.AddWithValue("@TeamName", teamName);
+                            command.Parameters.AddWithValue("@Championships", championships);
+                            command.Parameters.AddWithValue("@Stars", stars);
+                            command.Parameters.AddWithValue("@CurrentStanding", currentStanding);
+                            command.Parameters.AddWithValue("@TeamName", teamName);
 
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                    connection.Close();
+                            connection.Open();
+                            command.ExecuteNonQuery();
+                            connection.Close();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log database error but continue since XML is our primary storage
+                        System.Diagnostics.Debug.WriteLine("Error updating team in database: " + ex.Message);
+                    }
                 }
-                catch
-                {
-                }
+
+                return xmlSuccess;
             }
-
-            return xmlSuccess;
+            catch (Exception ex)
+            {
+                // Log the error
+                System.Diagnostics.Debug.WriteLine("Error in UpdateTeam: " + ex.Message);
+                throw new Exception("Failed to update team: " + ex.Message);
+            }
         }
 
         private static bool UpdateTeamInXml(string teamName, string championships, string stars, string currentStanding)
@@ -215,35 +260,50 @@ namespace NEWSITEPROJECT
 
                 return false;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine("Error updating team in XML: " + ex.Message);
                 return false;
             }
         }
 
         public static bool DeleteTeam(string teamName)
         {
-            bool xmlSuccess = DeleteTeamFromXml(teamName);
-            if (IsOleDbAvailable())
+            try
             {
-                try
+                bool xmlSuccess = DeleteTeamFromXml(teamName);
+                
+                if (IsOleDbAvailable())
                 {
-                    OleDbConnection connection = new OleDbConnection(connectionString);
-                    string query = "DELETE FROM Teams WHERE TeamName = ?";
-                    OleDbCommand command = new OleDbCommand(query, connection);
+                    try
+                    {
+                        using (OleDbConnection connection = new OleDbConnection(connectionString))
+                        {
+                            string query = "DELETE FROM Teams WHERE TeamName = ?";
+                            OleDbCommand command = new OleDbCommand(query, connection);
 
-                    command.Parameters.AddWithValue("@TeamName", teamName);
+                            command.Parameters.AddWithValue("@TeamName", teamName);
 
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                    connection.Close();
+                            connection.Open();
+                            command.ExecuteNonQuery();
+                            connection.Close();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log database error but continue since XML is our primary storage
+                        System.Diagnostics.Debug.WriteLine("Error deleting team from database: " + ex.Message);
+                    }
                 }
-                catch
-                {
-                }
+
+                return xmlSuccess;
             }
-
-            return xmlSuccess;
+            catch (Exception ex)
+            {
+                // Log the error
+                System.Diagnostics.Debug.WriteLine("Error in DeleteTeam: " + ex.Message);
+                throw new Exception("Failed to delete team: " + ex.Message);
+            }
         }
 
         private static bool DeleteTeamFromXml(string teamName)
@@ -266,56 +326,94 @@ namespace NEWSITEPROJECT
 
                 return false;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine("Error deleting team from XML: " + ex.Message);
                 return false;
             }
         }
 
         private static void AddTeamToXml(string teamName, string championships, string stars, string currentStanding)
         {
-            XmlDocument doc;
-            if (File.Exists(teamsXmlPath))
+            try
             {
-                doc = new XmlDocument();
-                doc.Load(teamsXmlPath);
+                XmlDocument doc;
+                if (File.Exists(teamsXmlPath))
+                {
+                    doc = new XmlDocument();
+                    doc.Load(teamsXmlPath);
+                }
+                else
+                {
+                    doc = new XmlDocument();
+                    XmlDeclaration dec = doc.CreateXmlDeclaration("1.0", "utf-8", null);
+                    doc.AppendChild(dec);
+                    XmlElement root = doc.CreateElement("Teams");
+                    doc.AppendChild(root);
+                }
+
+                // Check if team already exists - if so, just update it
+                XmlNode existingTeam = doc.SelectSingleNode("//Team[TeamName='" + teamName + "']");
+                if (existingTeam != null)
+                {
+                    // Team already exists - update it
+                    existingTeam.SelectSingleNode("Championships").InnerText = championships;
+                    existingTeam.SelectSingleNode("Stars").InnerText = stars;
+                    existingTeam.SelectSingleNode("CurrentStanding").InnerText = currentStanding;
+                }
+                else
+                {
+                    // Create new team element
+                    XmlElement teamElement = doc.CreateElement("Team");
+
+                    XmlElement nameElement = doc.CreateElement("TeamName");
+                    nameElement.InnerText = teamName;
+                    teamElement.AppendChild(nameElement);
+
+                    XmlElement championshipsElement = doc.CreateElement("Championships");
+                    championshipsElement.InnerText = championships;
+                    teamElement.AppendChild(championshipsElement);
+
+                    XmlElement starsElement = doc.CreateElement("Stars");
+                    starsElement.InnerText = stars;
+                    teamElement.AppendChild(starsElement);
+
+                    XmlElement standingElement = doc.CreateElement("CurrentStanding");
+                    standingElement.InnerText = currentStanding;
+                    teamElement.AppendChild(standingElement);
+
+                    doc.DocumentElement.AppendChild(teamElement);
+                }
+
+                // Ensure the directory exists
+                string directory = Path.GetDirectoryName(teamsXmlPath);
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                // Save the XML document
+                doc.Save(teamsXmlPath);
+                
+                // Verify the file was saved
+                if (!File.Exists(teamsXmlPath))
+                {
+                    throw new Exception("XML file could not be created after save operation");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                doc = new XmlDocument();
-                XmlDeclaration dec = doc.CreateXmlDeclaration("1.0", "utf-8", null);
-                doc.AppendChild(dec);
-                XmlElement root = doc.CreateElement("Teams");
-                doc.AppendChild(root);
+                System.Diagnostics.Debug.WriteLine("Error in AddTeamToXml: " + ex.Message);
+                throw new Exception("Failed to save team to XML: " + ex.Message);
             }
-
-            XmlElement teamElement = doc.CreateElement("Team");
-
-            XmlElement nameElement = doc.CreateElement("TeamName");
-            nameElement.InnerText = teamName;
-            teamElement.AppendChild(nameElement);
-
-            XmlElement championshipsElement = doc.CreateElement("Championships");
-            championshipsElement.InnerText = championships;
-            teamElement.AppendChild(championshipsElement);
-
-            XmlElement starsElement = doc.CreateElement("Stars");
-            starsElement.InnerText = stars;
-            teamElement.AppendChild(starsElement);
-
-            XmlElement standingElement = doc.CreateElement("CurrentStanding");
-            standingElement.InnerText = currentStanding;
-            teamElement.AppendChild(standingElement);
-
-            doc.DocumentElement.AppendChild(teamElement);
-            doc.Save(teamsXmlPath);
         }
 
         public static bool AuthenticateUser(string username, string password, out string userRole)
         {
             userRole = "";
+            string hashedPassword = HashPassword(password);
 
-            // Try XML authentication first
+            // Try XML authentication first with both hashed and plaintext passwords
             if (File.Exists(usersXmlPath))
             {
                 try
@@ -323,7 +421,15 @@ namespace NEWSITEPROJECT
                     XmlDocument doc = new XmlDocument();
                     doc.Load(usersXmlPath);
 
+                    // First try with plain password (for backward compatibility)
                     XmlNode userNode = doc.SelectSingleNode("//User[Username='" + username + "' and Password='" + password + "']");
+                    
+                    // If not found, try with hashed password
+                    if (userNode == null)
+                    {
+                        userNode = doc.SelectSingleNode("//User[Username='" + username + "' and Password='" + hashedPassword + "']");
+                    }
+                    
                     if (userNode != null)
                     {
                         XmlNode roleNode = userNode.SelectSingleNode("UserRole");
@@ -334,18 +440,21 @@ namespace NEWSITEPROJECT
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine("XML Authentication error: " + ex.Message);
                     // Continue to database check if XML fails
                 }
             }
 
-            // Try database authentication
+            // Try database authentication with both plaintext and hashed passwords
             try
             {
                 using (OleDbConnection conn = new OleDbConnection(connectionString))
                 {
                     conn.Open();
+                    
+                    // First try with plaintext password
                     string query = "SELECT Role FROM Users WHERE Username = ? AND Password = ?";
                     using (OleDbCommand cmd = new OleDbCommand(query, conn))
                     {
@@ -359,12 +468,27 @@ namespace NEWSITEPROJECT
                             return true;
                         }
                     }
+                    
+                    // If not found, try with hashed password
+                    query = "SELECT Role FROM Users WHERE Username = ? AND Password = ?";
+                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Username", username);
+                        cmd.Parameters.AddWithValue("@Password", hashedPassword);
+
+                        object result = cmd.ExecuteScalar();
+                        if (result != null)
+                        {
+                            userRole = result.ToString();
+                            return true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 // Log the error
-                System.Diagnostics.Debug.WriteLine(string.Format("Authentication error: {0}", ex.Message));
+                System.Diagnostics.Debug.WriteLine("Database Authentication error: " + ex.Message);
             }
 
             return false;
@@ -384,106 +508,137 @@ namespace NEWSITEPROJECT
                     if (userNode != null)
                         return true;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine("Error checking username in XML: " + ex.Message);
+                    // Continue to database check if XML fails
                 }
             }
 
-            if (IsOleDbAvailable())
-            {
-                try
-                {
-                    OleDbConnection connection = new OleDbConnection(connectionString);
-                    string query = "SELECT COUNT(*) FROM Users WHERE Username = ?";
-                    OleDbCommand command = new OleDbCommand(query, connection);
-
-                    command.Parameters.AddWithValue("@Username", username);
-
-                    connection.Open();
-                    int count = (int)command.ExecuteScalar();
-                    connection.Close();
-
-                    return count > 0;
-                }
-                catch
-                {
-                }
-            }
-
-            return false;
-        }
-
-        public static bool RegisterUser(string username, string password, string email)
-        {
             try
             {
                 using (OleDbConnection conn = new OleDbConnection(connectionString))
                 {
                     conn.Open();
-                    string query = "INSERT INTO Users (Username, Password, Email, Role) VALUES (?, ?, ?, 'User')";
+                    string query = "SELECT COUNT(*) FROM Users WHERE Username = ?";
                     using (OleDbCommand cmd = new OleDbCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@Username", username);
-                        cmd.Parameters.AddWithValue("@Password", password); // Note: In production, use proper password hashing
-                        cmd.Parameters.AddWithValue("@Email", email);
-
-                        return cmd.ExecuteNonQuery() > 0;
+                        int count = Convert.ToInt32(cmd.ExecuteScalar());
+                        return count > 0;
                     }
                 }
             }
             catch (Exception ex)
             {
-                // Log the error
-                System.Diagnostics.Debug.WriteLine(string.Format("Registration error: {0}", ex.Message));
+                System.Diagnostics.Debug.WriteLine("Error checking username in database: " + ex.Message);
+            }
+            
+            return false;
+        }
+
+        public static bool RegisterUser(string username, string password, string email)
+        {
+            // Check if username already exists
+            if (UsernameExists(username))
+                return false;
+
+            string hashedPassword = HashPassword(password);
+
+            try
+            {
+                // Save to XML
+                AddUserToXml(username, hashedPassword, email, "user"); // Default role is 'user'
+
+                // Try to save to database
+                if (IsOleDbAvailable())
+                {
+                    try
+                    {
+                        using (OleDbConnection conn = new OleDbConnection(connectionString))
+                        {
+                            conn.Open();
+                            string query = "INSERT INTO Users (Username, Password, Email, Role) VALUES (?, ?, ?, ?)";
+                            using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                            {
+                                cmd.Parameters.AddWithValue("@Username", username);
+                                cmd.Parameters.AddWithValue("@Password", hashedPassword);
+                                cmd.Parameters.AddWithValue("@Email", email);
+                                cmd.Parameters.AddWithValue("@Role", "user"); // Default role
+
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Error registering user in database: " + ex.Message);
+                        // Continue since XML is our primary storage
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error registering user: " + ex.Message);
                 return false;
             }
         }
 
-        private static bool AddUserToXml(string username, string password, string userRole)
+        private static void AddUserToXml(string username, string password, string email, string role)
         {
-            try
+            XmlDocument doc;
+            if (File.Exists(usersXmlPath))
             {
-                XmlDocument doc = new XmlDocument();
-
-                if (File.Exists(usersXmlPath))
-                {
-                    doc.Load(usersXmlPath);
-                }
-                else
-                {
-                    XmlDeclaration declaration = doc.CreateXmlDeclaration("1.0", "utf-8", null);
-                    doc.AppendChild(declaration);
-
-                    XmlElement usersRoot = doc.CreateElement("Users");
-                    doc.AppendChild(usersRoot);
-                }
-
-                XmlElement root = doc.DocumentElement;
-
-                XmlElement userElement = doc.CreateElement("User");
-                XmlElement usernameElement = doc.CreateElement("Username");
-                usernameElement.InnerText = username;
-                userElement.AppendChild(usernameElement);
-
-                XmlElement passwordElement = doc.CreateElement("Password");
-                passwordElement.InnerText = password;
-                userElement.AppendChild(passwordElement);
-
-                XmlElement roleElement = doc.CreateElement("UserRole");
-                roleElement.InnerText = userRole;
-                userElement.AppendChild(roleElement);
-
-                XmlElement dateElement = doc.CreateElement("RegistrationDate");
-                dateElement.InnerText = DateTime.Now.ToString("yyyy-MM-dd");
-                userElement.AppendChild(dateElement);
-
-                root.AppendChild(userElement);
-                doc.Save(usersXmlPath);
-                return true;
+                doc = new XmlDocument();
+                doc.Load(usersXmlPath);
             }
-            catch
+            else
             {
-                return false;
+                doc = new XmlDocument();
+                XmlDeclaration dec = doc.CreateXmlDeclaration("1.0", "utf-8", null);
+                doc.AppendChild(dec);
+                XmlElement root = doc.CreateElement("Users");
+                doc.AppendChild(root);
+            }
+
+            XmlElement userElement = doc.CreateElement("User");
+
+            XmlElement usernameElement = doc.CreateElement("Username");
+            usernameElement.InnerText = username;
+            userElement.AppendChild(usernameElement);
+
+            XmlElement passwordElement = doc.CreateElement("Password");
+            passwordElement.InnerText = password;
+            userElement.AppendChild(passwordElement);
+
+            XmlElement emailElement = doc.CreateElement("Email");
+            emailElement.InnerText = email;
+            userElement.AppendChild(emailElement);
+
+            XmlElement roleElement = doc.CreateElement("UserRole");
+            roleElement.InnerText = role;
+            userElement.AppendChild(roleElement);
+
+            doc.DocumentElement.AppendChild(userElement);
+            doc.Save(usersXmlPath);
+        }
+
+        public static string HashPassword(string password)
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // Convert the input string to a byte array and compute the hash
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+
+                // Convert byte array to a string
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
             }
         }
     }

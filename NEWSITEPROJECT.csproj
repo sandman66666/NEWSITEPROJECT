@@ -86,6 +86,12 @@
     <Compile Include="App_Code\DatabaseHelper.cs" />
     <Content Include="App_Data\Teams.xml" />
     <Content Include="App_Data\Users.xml" />
+    <Content Include="App_Themes\Default\schoolLogo.png" />
+    <Content Include="App_Themes\Theme1\beitarrjerusalem.png" />
+    <Content Include="App_Themes\Theme1\hapoelpetahtikva.jpeg" />
+    <Content Include="App_Themes\Theme1\hapoelTelvaviv.png" />
+    <Content Include="App_Themes\Theme1\macabiHJaifa.jpeg" />
+    <Content Include="App_Themes\Theme1\macabitelavvilogo.jpeg" />
     <Content Include="BeitarJerusalem.aspx" />
     <Content Include="bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll" />
     <Content Include="bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml" />
@@ -93,23 +99,31 @@
     <Content Include="Global.asax" />
     <Content Include="HapoelPetahTikva.aspx" />
     <Content Include="HapoelTelAviv.aspx" />
+    <Content Include="Images1\beitarrjerusalem.png" />
+    <Content Include="Images1\hapoelpetahtikva.jpeg" />
+    <Content Include="Images1\hapoelTelvaviv.png" />
+    <Content Include="Images1\macabiHJaifa.jpeg" />
+    <Content Include="Images1\macabitelavvilogo.jpeg" />
+    <Content Include="Images1\schoolLogo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="MasterPage.master" />
-    <Content Include="images\beitarrjerusalem.png">
+    <Content Include="Content\images\beitarrjerusalem.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="images\hapoelpetahtikva.jpeg">
+    <Content Include="Content\images\hapoelpetahtikva.jpeg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="images\hapoelTelvaviv.png">
+    <Content Include="Content\images\hapoelTelvaviv.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="images\macabiHJaifa.jpeg">
+    <Content Include="Content\images\macabiHJaifa.jpeg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="images\macabitelavvilogo.jpeg">
+    <Content Include="Content\images\macabitelavvilogo.jpeg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="images\schoolLogo.png">
+    <Content Include="Content\images\schoolLogo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MaccabiHaifa.aspx" />

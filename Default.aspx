@@ -1,16 +1,6 @@
 <%@ Page Title="דף הבית" Language="C#" MasterPageFile="~/MasterPage.master" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
-<script runat="server">
-    protected void Page_Load(object sender, EventArgs e)
-    {
-        if (!IsPostBack)
-        {
-            string imagePath = ResolveUrl("~/images/schoolLogo.png");
-            schoolLogo.ImageUrl = imagePath;
-        }
-    }
-</script>
     <style>
         .welcome-section {
             text-align: center;
@@ -61,7 +51,8 @@
     <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
     <div class="welcome-section">
         <div class="logo-container">
-            <asp:Image ID="schoolLogo" runat="server" CssClass="school-logo" AlternateText="לוגו בית הספר" />
+            <!-- Try using a direct HTML img tag with a relative path -->
+            <img src="Images1/schoolLogo.png" class="school-logo" alt="לוגו בית הספר" />
         </div>
         <h1 class="welcome-title">ברוכים הבאים לאתר ליגת הכדורגל</h1>
         <p class="welcome-text">

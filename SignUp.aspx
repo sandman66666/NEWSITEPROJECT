@@ -1,4 +1,4 @@
-<%@ Page Title="הרשמה" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeBehind="SignUp.aspx.cs" Inherits="NEWSITEPROJECT.SignUp" %>
+<%@ Page Title="הרשמה" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="SignUp.aspx.cs" Inherits="NEWSITEPROJECT.SignUp" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
 </asp:Content>
