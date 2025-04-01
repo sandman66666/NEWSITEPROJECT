@@ -1,0 +1,1 @@
+<%@ Application Codebehind="Global.asax.cs" Inherits="NEWSITEPROJECT.Global" Language="C#" %>

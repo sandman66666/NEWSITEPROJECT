@@ -1,0 +1,2 @@
+C:\Mac\Home\Downloads\elul\new\2\NEWSITEPROJECT\obj\Debug\NEWSITEPROJECT.csproj.AssemblyReference.cache
+C:\Mac\Home\Downloads\elul\new\2\NEWSITEPROJECT\obj\Debug\NEWSITEPROJECT.csproj.CoreCompileInputs.cache

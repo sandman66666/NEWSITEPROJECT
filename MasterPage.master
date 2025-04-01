@@ -1,0 +1,139 @@
+<%@ Master Language="C#" %>
+<%@ Import Namespace="System.Web.UI" %>
+
+<script runat="server">
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        bool isLoggedIn = (Session["LoggedIn"] != null && (bool)Session["LoggedIn"]);
+
+        if (isLoggedIn)
+        {
+            string username = Session["Username"] != null ? Session["Username"].ToString() : "";
+            string role = Session["UserRole"] != null ? Session["UserRole"].ToString() : "";
+
+            // Handle logged-in user display
+            UserInfoLabel.Text = "שלום, " + username;
+
+            if (role == "admin")
+            {
+                UserInfoLabel.Text += " (מנהל) ";
+            }
+
+            UserInfoLabel.Text += " | <a href='SignIn.aspx?logout=true' style='color: white;'>התנתק</a>";
+            UserInfoLabel.Visible = true;
+            authLinks.Visible = false;
+        }
+        else
+        {
+            // Handle logged-out user display
+            UserInfoLabel.Visible = false;
+            authLinks.Visible = true;
+
+            // Redirect if not on sign-in or sign-up pages
+            string currentPage = System.IO.Path.GetFileName(Request.Path);
+
+            if (!currentPage.Equals("SignIn.aspx", StringComparison.OrdinalIgnoreCase) &&
+                !currentPage.Equals("SignUp.aspx", StringComparison.OrdinalIgnoreCase))
+            {
+                Response.Redirect("SignIn.aspx");
+            }
+        }
+    }
+</script>
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="rtl">
+<head runat="server">
+    <title>אתר קבוצות הכדורגל בישראל</title>
+    <style type="text/css">
+        body {
+            font-family: "Arial Hebrew", Arial, "Segoe UI", "David", "Tahoma", sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            direction: rtl;
+            text-align: right;
+        }
+        .navbar {
+            background-color: #4CAF50;
+            padding: 10px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-logo a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            margin: 0 5px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .nav-links a:hover {
+            background-color: #45a049;
+        }
+        .main-content {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .footer {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 30px;
+        }
+    </style>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="Default.aspx">אתר קבוצות הכדורגל בישראל</a>
+                </div>
+                <div class="nav-links">
+                    <a href="Default.aspx">דף הבית</a>
+                    <a href="TeamsTable.aspx">טבלת הקבוצות</a>
+                    <a href="WhyThisSubject.aspx">למה בחרתי בנושא</a>
+                    <a href="SiteMap.aspx">מפת האתר</a>
+                </div>
+                <div class="auth-section">
+                    <asp:Label ID="UserInfoLabel" runat="server" CssClass="user-info" Visible="false"></asp:Label>
+                    <div id="authLinks" runat="server" class="auth-links">
+                        <a href="SignIn.aspx">התחבר</a>
+                        <a href="SignUp.aspx">הרשם</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; <%: DateTime.Now.Year %> - אתר קבוצות הכדורגל בישראל</p>
+            </div>
+        </footer>
+    </form>
+</body>
+</html>

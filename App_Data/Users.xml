@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Users>
+    <User>
+        <Username>eli</Username>
+        <Password>eli</Password>
+        <UserRole>admin</UserRole>
+        <RegistrationDate>2025-03-22</RegistrationDate>
+    </User>
+    <User>
+        <Username>oudi</Username>
+        <Password>5040</Password>
+        <UserRole>user</UserRole>
+        <RegistrationDate>2025-03-22</RegistrationDate>
+    </User>
+</Users>
