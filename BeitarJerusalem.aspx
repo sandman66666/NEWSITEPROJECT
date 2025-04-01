@@ -63,7 +63,7 @@
     <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
     <div class="team-header">
         <div class="logo-container">
-            <img id="teamLogo" runat="server" src="" class="team-logo" alt="לוגו בית''ר ירושלים" />
+            <img id="teamLogo" runat="server" src="~/Images/beitarrjerusalem.png" class="team-logo" alt="לוגו בית''ר ירושלים" />
         </div>
         <h1 class="team-title">בית''ר ירושלים</h1>
     </div>

@@ -1,27 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Teams>
-    <Team>
-        <TeamName>מכבי חיפה</TeamName>
-        <Championships>14</Championships>
-        <Stars>יעקב חודורוב, רוני רוזנטל</Stars>
-        <CurrentStanding>1</CurrentStanding>
-    </Team>
-    <Team>
-        <TeamName>הפועל תל אביב</TeamName>
-        <Championships>13</Championships>
-        <Stars>שייע גלזר, רפי לוי</Stars>
-        <CurrentStanding>2</CurrentStanding>
-    </Team>
-    <Team>
-        <TeamName>מכבי תל אביב</TeamName>
-        <Championships>23</Championships>
-        <Stars>אבי נימני, אלי דריקס</Stars>
-        <CurrentStanding>3</CurrentStanding>
-    </Team>
-    <Team>
-        <TeamName>בית''ר ירושלים</TeamName>
-        <Championships>6</Championships>
-        <Stars>אורי מלמיליאן, דני נוימן</Stars>
-        <CurrentStanding>4</CurrentStanding>
-    </Team>
+  <Team>
+    <TeamName>מכבי חיפה</TeamName>
+    <Championships>14</Championships>
+    <Stars>יעקב חודורוב, רוני רוזנטל</Stars>
+    <CurrentStanding>1</CurrentStanding>
+  </Team>
+  <Team>
+    <TeamName>הפועל תל אביב</TeamName>
+    <Championships>13</Championships>
+    <Stars>שייע גלזר, רפי לוי</Stars>
+    <CurrentStanding>2</CurrentStanding>
+  </Team>
+  <Team>
+    <TeamName>מכבי תל אביב</TeamName>
+    <Championships>23</Championships>
+    <Stars>אבי נימני, אלי דריקס</Stars>
+    <CurrentStanding>3</CurrentStanding>
+  </Team>
+  <Team>
+    <TeamName>בית''ר ירושלים</TeamName>
+    <Championships>6</Championships>
+    <Stars>אורי מלמיליאן, דני נוימן</Stars>
+    <CurrentStanding>4</CurrentStanding>
+  </Team>
 </Teams>

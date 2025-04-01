@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Code\DatabaseHelper.cs" />
+    <Content Include="App_Data\Teams.accdb" />
     <Content Include="App_Data\Teams.xml" />
     <Content Include="App_Data\Users.xml" />
     <Content Include="App_Themes\Default\schoolLogo.png" />
@@ -261,7 +262,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Data\Teams.accdb.odb" />
     <Content Include="bundle.config" />
     <Content Include="obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
     <Content Include="obj\Debug\NEWSITEPROJECT.csproj.AssemblyReference.cache" />

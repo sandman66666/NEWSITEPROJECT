@@ -5,7 +5,7 @@ using System.Web.UI.WebControls;
 
 namespace NEWSITEPROJECT
 {
-    public partial class TeamsTable : System.Web.UI.Page
+    public partial class TeamsTablePage : System.Web.UI.Page
     {
         private DataTable teamsTable;
         private bool isAdmin = false;

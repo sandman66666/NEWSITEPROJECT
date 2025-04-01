@@ -1,15 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Users>
-    <User>
-        <Username>eli</Username>
-        <Password>eli</Password>
-        <UserRole>admin</UserRole>
-        <RegistrationDate>2025-03-22</RegistrationDate>
-    </User>
-    <User>
-        <Username>oudi</Username>
-        <Password>5040</Password>
-        <UserRole>user</UserRole>
-        <RegistrationDate>2025-03-22</RegistrationDate>
-    </User>
+  <User>
+    <Username>eli</Username>
+    <Password>eli</Password>
+    <UserRole>admin</UserRole>
+    <RegistrationDate>2025-03-22</RegistrationDate>
+  </User>
+  <User>
+    <Username>oudi</Username>
+    <Password>5040</Password>
+    <UserRole>user</UserRole>
+    <RegistrationDate>2025-03-22</RegistrationDate>
+  </User>
+  <User>
+    <Username>teacher</Username>
+    <Password>cde383eee8ee7a4400adf7a15f716f179a2eb97646b37e089eb8d6d04e663416</Password>
+    <Email>teacher@teacher.com</Email>
+    <UserRole>user</UserRole>
+  </User>
 </Users>

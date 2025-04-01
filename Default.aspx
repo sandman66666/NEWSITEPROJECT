@@ -52,7 +52,7 @@
     <div class="welcome-section">
         <div class="logo-container">
             <!-- Try using a direct HTML img tag with a relative path -->
-            <img src="Images1/schoolLogo.png" class="school-logo" alt="לוגו בית הספר" />
+            <img src="~/Images/schoolLogo.png" class="school-logo" alt="לוגו בית הספר" />
         </div>
         <h1 class="welcome-title">ברוכים הבאים לאתר ליגת הכדורגל</h1>
         <p class="welcome-text">

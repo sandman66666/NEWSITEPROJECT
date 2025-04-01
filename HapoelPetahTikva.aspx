@@ -63,7 +63,7 @@
     <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
     <div class="team-header">
         <div class="logo-container">
-            <img id="teamLogo" runat="server" src="" class="team-logo" alt="לוגו הפועל פתח תקווה" />
+            <img id="teamLogo" runat="server" src="~/Images/hapoelPetahTikva.png" class="team-logo" alt="לוגו הפועל פתח תקווה" />
         </div>
         <h1 class="team-title">הפועל פתח תקווה</h1>
     </div>
