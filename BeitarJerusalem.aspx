@@ -63,7 +63,7 @@
     <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
     <div class="team-header">
         <div class="logo-container">
-            <img id="teamLogo" runat="server" src="~/Images/beitarrjerusalem.png" class="team-logo" alt="לוגו בית''ר ירושלים" />
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYAAADNCAMAAAC8cX2UAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADGUExURf//AQAAAP////7+AdPTAPv7AU9PAPPzAfj4AfDwAfn5+WZmAOnpAfz8/K+vAMPDw4yMAIaGALW1ANvb26WlpefnAb29AN3dAZOTALi4uLCwsOnp6RUVAC4uAKSkAHt7e5ycADQ0ANjYAWBgAFVVADs7AImJiUpKStLS0nBwcHx8AEBAABsbACcnAHFxALm5AFZWViwsLEdHAJKSkmZmZiMjI29vACEhABgYAAkJAD8/P5CQkEZGRjY2NsXFAXV1dRQUFC8vLwnTploAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKraVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/" class="team-logo" alt="לוגו בית''ר ירושלים" />
         </div>
         <h1 class="team-title">בית''ר ירושלים</h1>
     </div>

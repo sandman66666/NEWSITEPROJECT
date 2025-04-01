@@ -63,7 +63,7 @@
     <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
     <div class="team-header">
         <div class="logo-container">
-            <img id="teamLogo" runat="server" src="~/Images/hapoelTelvaviv.png" class="team-logo" alt="לוגו הפועל תל אביב" />
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANUAAADtCAMAAAAft8BxAAABIFBMVEX/AQP////+AAD7AAD8/////v/5///4AAD//f/9AQP//P/+//38/v///v38//38/f/9RUb9//r+w8L5//v+1tX9b3D+fX7/3Nr0AAD/0M/2//38//j99PX/6ef++fn+tLL8IyL+hYP89u/+6eP97+z+WFf93+D+Z2L9OjP+qaj+X2D5oZv7nZ79VlD8QkP5nqP5kIz/Nz35FhT9d3T7jY3+sKj86Nz+lZn5zMT/u7n6xMT+2tH5NSv9HyD/2tv+Ki39ra/1vcP6UFX4RVP+tqr8iH33vLT6PEP6ZGn4y8/+nJP94NfzRD76d2vysKrzg4L7cXr4xbf5l4n8WE3goaP7p5r3e276eX770b7/nI37bmD8UVz/+On3JjH9ZVr9hpFAng1I" class="team-logo" alt="לוגו הפועל תל אביב" />
         </div>
         <h1 class="team-title">הפועל תל אביב</h1>
     </div>

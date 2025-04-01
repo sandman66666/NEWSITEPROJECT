@@ -50,9 +50,8 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
     <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
     <div class="welcome-section">
-        <div class="logo-container">
-            <!-- Try using a direct HTML img tag with a relative path -->
-            <img src="~/Images/schoolLogo.png" class="school-logo" alt="לוגו בית הספר" />
+        <div id="banner-container">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYAAADNCAMAAAC8cX2UAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADGUExURf//AQAAAP////7+AdPTAPv7AU9PAPPzAfj4AfDwAfn5+WZmAOnpAfz8/K+vAMPDw4yMAIaGALW1ANvb26WlpefnAb29AN3dAZOTALi4uLCwsOnp6RUVAC4uAKSkAHt7e5ycADQ0ANjYAWBgAFVVADs7AImJiUpKStLS0nBwcHx8AEBAABsbACcnAHFxALm5AFZWViwsLEdHAJKSkmZmZiMjI29vACEhABgYAAkJAD8/P5CQkEZGRjY2NsXFAXV1dRQUFC8vLwnTploAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKraVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg==" id="banner-img" alt="אתר ליגת האלוף לוגו" />
         </div>
         <h1 class="welcome-title">ברוכים הבאים לאתר ליגת הכדורגל</h1>
         <p class="welcome-text">

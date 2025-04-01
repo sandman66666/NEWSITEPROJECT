@@ -87,12 +87,6 @@
     <Content Include="App_Data\Teams.accdb" />
     <Content Include="App_Data\Teams.xml" />
     <Content Include="App_Data\Users.xml" />
-    <Content Include="App_Themes\Default\schoolLogo.png" />
-    <Content Include="App_Themes\Theme1\beitarrjerusalem.png" />
-    <Content Include="App_Themes\Theme1\hapoelpetahtikva.jpeg" />
-    <Content Include="App_Themes\Theme1\hapoelTelvaviv.png" />
-    <Content Include="App_Themes\Theme1\macabiHJaifa.jpeg" />
-    <Content Include="App_Themes\Theme1\macabitelavvilogo.jpeg" />
     <Content Include="BeitarJerusalem.aspx" />
     <Content Include="bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll" />
     <Content Include="bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml" />
@@ -100,33 +94,12 @@
     <Content Include="Global.asax" />
     <Content Include="HapoelPetahTikva.aspx" />
     <Content Include="HapoelTelAviv.aspx" />
-    <Content Include="Images1\beitarrjerusalem.png" />
-    <Content Include="Images1\hapoelpetahtikva.jpeg" />
-    <Content Include="Images1\hapoelTelvaviv.png" />
-    <Content Include="Images1\macabiHJaifa.jpeg" />
-    <Content Include="Images1\macabitelavvilogo.jpeg" />
-    <Content Include="Images1\schoolLogo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Images\beitarrjerusalem.png" />
+    <Content Include="Images\hapoelPetahTikva.png" />
+    <Content Include="Images\hapoelTelvaviv.png" />
+    <Content Include="Images\maccabiHaifa.png" />
+    <Content Include="Images\schoolLogo.png" />
     <Content Include="MasterPage.master" />
-    <Content Include="Content\images\beitarrjerusalem.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\images\hapoelpetahtikva.jpeg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\images\hapoelTelvaviv.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\images\macabiHJaifa.jpeg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\images\macabitelavvilogo.jpeg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\images\schoolLogo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="MaccabiHaifa.aspx" />
     <Content Include="packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll" />
     <Content Include="packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml" />

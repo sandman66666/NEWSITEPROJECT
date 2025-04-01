@@ -63,7 +63,7 @@
     <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
     <div class="team-header">
         <div class="logo-container">
-            <asp:Image ID="teamLogo" runat="server" CssClass="team-logo" AlternateText="לוגו מכבי חיפה" />
+            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxITEhUSExIVFRUVFRcVGBUXFRUVFRYXFRUWFxUVFRUYHSggGBolHRUVITEiJSorLi4uFx8zODMtNygtLisBCgoKDg0OGhAQGy0mHyYvLS0tKy0tLSstLy0tLS0tLS0tLS0tLi0vLy0rLS0tLS0tLS0tLS0tLS0tLy0tLS0tLf/AABEIAOEA4QMBIgACEQEDEQH/xAAcAAABBAMBAAAAAAAAAAAAAAADAAECBgQFBwj/xABOEAACAQMBBQYEBgcEBgcJAAABAgMABBEhBQYSMUEHEyJRYXGBkRQyQlKhsRUjYnKC0fAzkpPBCBdDU1SyNXSis9LT8RYkNDZzg8LD4f/EABkBAAMBAQEAAAAAAAAAAAAAAAABAgMEBf/EADARAAICAQMCAwUIAwAAAAAAAAABAhEDEiExQVEEYXETIoGR8CMyQlKhscHRFOHx" class="team-logo" alt="לוגו מכבי חיפה" />
         </div>
         <h1 class="team-title">מכבי חיפה</h1>
     </div>
