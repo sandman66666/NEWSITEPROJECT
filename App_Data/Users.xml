@@ -24,4 +24,22 @@
     <Email>oudiantebi@hotmail.com</Email>
     <UserRole>user</UserRole>
   </User>
+  <User>
+    <Username>jon</Username>
+    <Password>tush5040</Password>
+    <Email>oudiantebi@hotmail.com</Email>
+    <UserRole>user</UserRole>
+  </User>
+  <User>
+    <Username>jjjj</Username>
+    <Password>tush5040</Password>
+    <Email>oudiantebi@hotmail.com</Email>
+    <UserRole>user</UserRole>
+  </User>
+  <User>
+    <Username>teacher1</Username>
+    <Password>tush5040</Password>
+    <Email>teacher@teacher.com</Email>
+    <UserRole>user</UserRole>
+  </User>
 </Users>

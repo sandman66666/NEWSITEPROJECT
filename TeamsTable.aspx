@@ -1,119 +1,4 @@
-<%@ Page Title="טבלת קבוצות" Language="C#" MasterPageFile="~/MasterPage.master" %>
-
-<script runat="server">
-    protected void Page_Load(object sender, EventArgs e)
-    {
-        if (!IsPostBack)
-        {
-            LoadTeams();
-            SetAdminControls();
-        }
-    }
-    
-    private void SetAdminControls()
-    {
-        bool isAdmin = false;
-        
-        if (Session["UserRole"] != null && Session["UserRole"].ToString().ToLower() == "admin")
-        {
-            isAdmin = true;
-        }
-        
-        AdminNoticePanel.Visible = !isAdmin;
-        AddTeamLink.Visible = isAdmin;
-    }
-    
-    private void LoadTeams()
-    {
-        try
-        {
-            System.Data.DataTable teamsTable = new System.Data.DataTable();
-            teamsTable.Columns.Add("TeamName");
-            teamsTable.Columns.Add("Championships");
-            teamsTable.Columns.Add("Stars");
-            teamsTable.Columns.Add("CurrentStanding");
-
-            string xmlPath = Server.MapPath("~/App_Data/Teams.xml");
-            
-            if (System.IO.File.Exists(xmlPath))
-            {
-                System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
-                doc.Load(xmlPath);
-
-                System.Xml.XmlNodeList teams = doc.SelectNodes("//Team");
-                if (teams != null)
-                {
-                    foreach (System.Xml.XmlNode team in teams)
-                    {
-                        string name = "";
-                        string champs = "0";
-                        string stars = "0";
-                        string standing = "0";
-                        
-                        System.Xml.XmlNode nameNode = team.SelectSingleNode("TeamName");
-                        if (nameNode != null)
-                        {
-                            name = nameNode.InnerText;
-                        }
-                        
-                        System.Xml.XmlNode champsNode = team.SelectSingleNode("Championships");
-                        if (champsNode != null)
-                        {
-                            champs = champsNode.InnerText;
-                        }
-                        
-                        System.Xml.XmlNode starsNode = team.SelectSingleNode("Stars");
-                        if (starsNode != null)
-                        {
-                            stars = starsNode.InnerText;
-                        }
-                        
-                        System.Xml.XmlNode standingNode = team.SelectSingleNode("CurrentStanding");
-                        if (standingNode != null)
-                        {
-                            standing = standingNode.InnerText;
-                        }
-
-                        teamsTable.Rows.Add(name, champs, stars, standing);
-                    }
-                }
-            }
-            else
-            {
-                teamsTable.Rows.Add("מכבי חיפה", "12", "5", "1");
-                teamsTable.Rows.Add("הפועל תל אביב", "8", "4", "2");
-                teamsTable.Rows.Add("בית''ר ירושלים", "6", "3", "3");
-            }
-            
-            GridViewTeams.DataSource = teamsTable;
-            GridViewTeams.DataBind();
-        }
-        catch (System.Exception)
-        {
-            System.Data.DataTable defaultTable = new System.Data.DataTable();
-            defaultTable.Columns.Add("TeamName");
-            defaultTable.Columns.Add("Championships");
-            defaultTable.Columns.Add("Stars");
-            defaultTable.Columns.Add("CurrentStanding");
-            
-            defaultTable.Rows.Add("מכבי חיפה", "12", "5", "1");
-            defaultTable.Rows.Add("הפועל תל אביב", "8", "4", "2");
-            defaultTable.Rows.Add("בית''ר ירושלים", "6", "3", "3");
-            
-            GridViewTeams.DataSource = defaultTable;
-            GridViewTeams.DataBind();
-        }
-    }
-    
-    protected bool IsAdminUser()
-    {
-        if (Session["UserRole"] != null && Session["UserRole"].ToString().ToLower() == "admin")
-        {
-            return true;
-        }
-        return false;
-    }
-</script>
+<%@ Page Title="טבלת קבוצות" Language="C#" MasterPageFile="~/MasterPage.master" CodeFile="TeamsTable.aspx.cs" Inherits="TeamsTable" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
     <style>
@@ -143,83 +28,148 @@
         
         .action-link {
             display: inline-block;
-            padding: 5px 10px;
             margin: 0 5px;
+            padding: 3px 8px;
             border-radius: 3px;
             text-decoration: none;
             color: white;
         }
         
         .edit-link {
-            background-color: #2ecc71;
+            background-color: #3498db;
         }
         
         .delete-link {
             background-color: #e74c3c;
         }
         
-        .admin-notice {
-            background-color: #fcf8e3;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            color: #8a6d3b;
-            text-align: center;
+        .add-team-button {
+            margin-top: 20px;
+            padding: 6px 15px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
         
-        .add-team-button {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #3498db;
-            color: white;
-            border-radius: 5px;
-            margin-top: 20px;
+        .add-team-button:hover {
+            background-color: #45a049;
+        }
+        
+        .admin-notice {
+            background-color: #fcf8e3;
+            border: 1px solid #faebcc;
+            color: #8a6d3b;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
         }
     </style>
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
+    <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
     <div style="text-align: center; padding: 20px;">
         <h2 style="color: #2c3e50; font-size: 28px; margin-bottom: 30px; text-align: center;">קבוצות הכדורגל המובילות בישראל</h2>
         
-        <asp:Panel ID="AdminNoticePanel" runat="server" Visible="false" CssClass="admin-notice">
-            <p>רק מנהל מערכת יכול להוסיף, לערוך או למחוק קבוצות.</p>
+        <asp:Panel ID="AdminNoticePanel" runat="server" CssClass="admin-notice" Visible="false">
+            <p>אתה לא מחובר כמנהל. רק מנהלים יכולים להוסיף, לערוך או למחוק קבוצות.</p>
+            <p><a href="Signin.aspx" style="color: #8a6d3b; font-weight: bold;">התחבר כמנהל</a> כדי לקבל גישה מלאה.</p>
         </asp:Panel>
         
-        <div style="margin: 20px auto; max-width: 800px;">
-            <asp:GridView ID="GridViewTeams" runat="server" AutoGenerateColumns="False" 
-                         CssClass="teams-table" GridLines="None" Width="100%">
+        <div style="max-width: 900px; margin: 0 auto; background-color: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <!-- Search Panel -->
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: right;">
+                <h3 style="margin-top: 0; color: #333; font-size: 18px; margin-bottom: 10px;">חיפוש קבוצות</h3>
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+                    <div style="flex: 1; min-width: 200px; margin-left: 15px; margin-bottom: 10px;">
+                        <label for="SearchNameTextBox" style="display: block; margin-bottom: 5px; font-weight: bold;">שם קבוצה:</label>
+                        <asp:TextBox ID="SearchNameTextBox" runat="server" CssClass="form-control" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;"></asp:TextBox>
+                    </div>
+                    <div style="flex: 1; min-width: 200px; margin-bottom: 10px;">
+                        <label for="MinChampionshipsTextBox" style="display: block; margin-bottom: 5px; font-weight: bold;">מינימום אליפויות:</label>
+                        <asp:TextBox ID="MinChampionshipsTextBox" runat="server" CssClass="form-control" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;"></asp:TextBox>
+                    </div>
+                </div>
+                <div style="margin-top: 10px; text-align: left;">
+                    <asp:Button ID="SearchButton" runat="server" Text="חפש" OnClick="SearchButton_Click" 
+                        style="background-color: #4CAF50; color: white; padding: 6px 15px; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px;" />
+                    <asp:Button ID="ClearButton" runat="server" Text="נקה" OnClick="ClearButton_Click" 
+                        style="background-color: #f8f9fa; color: #333; padding: 6px 15px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;" />
+                </div>
+            </div>
+            
+            <asp:GridView ID="TeamsGridView" runat="server" AutoGenerateColumns="False" 
+                    CssClass="teams-table" Width="100%" HorizontalAlign="Center"
+                    DataKeyNames="TeamName" OnRowCommand="GridView1_RowCommand" 
+                    OnRowDataBound="GridView1_RowDataBound"
+                    OnRowEditing="GridView1_RowEditing"
+                    OnRowCancelingEdit="GridView1_RowCancelingEdit"
+                    OnRowUpdating="GridView1_RowUpdating">
                 <Columns>
-                    <asp:BoundField DataField="TeamName" HeaderText="שם הקבוצה" />
-                    <asp:BoundField DataField="Championships" HeaderText="מספר אליפויות" />
-                    <asp:TemplateField HeaderText="פעולות" ItemStyle-Width="120px">
+                    <asp:TemplateField HeaderText="פעולות" ItemStyle-Width="150px">
                         <ItemTemplate>
-                            <div style="display:flex; justify-content: center;">
-                                <asp:HyperLink ID="EditLink" runat="server" 
-                                    NavigateUrl='<%# "EditTeam.aspx?mode=edit&team=" + Eval("TeamName") %>' 
-                                    CssClass="action-link edit-link" Visible='<%# IsAdminUser() %>'>
-                                    עריכה
-                                </asp:HyperLink>
-                                
-                                <asp:HyperLink ID="DeleteLink" runat="server" 
-                                    NavigateUrl='<%# "DeleteTeam.aspx?team=" + Eval("TeamName") %>' 
-                                    CssClass="action-link delete-link" Visible='<%# IsAdminUser() %>'>
-                                    מחיקה
-                                </asp:HyperLink>
-                            </div>
+                            <asp:Panel ID="AdminActionsPanel" runat="server">
+                                <asp:LinkButton ID="EditButton" runat="server" CommandName="Edit" 
+                                    CssClass="action-link edit-link">ערוך</asp:LinkButton>
+                                <asp:LinkButton ID="DeleteButton" runat="server" CommandName="DeleteTeam" 
+                                    CommandArgument='<%# Eval("TeamName") %>' 
+                                    CssClass="action-link delete-link"
+                                    OnClientClick="return confirm('האם אתה בטוח שברצונך למחוק קבוצה זו?');">מחק</asp:LinkButton>
+                            </asp:Panel>
                         </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:LinkButton ID="UpdateButton" runat="server" CommandName="Update" 
+                                CssClass="action-link edit-link">שמור</asp:LinkButton>
+                            <asp:LinkButton ID="CancelButton" runat="server" CommandName="Cancel" 
+                                CssClass="action-link delete-link">בטל</asp:LinkButton>
+                        </EditItemTemplate>
                     </asp:TemplateField>
-                    <asp:BoundField DataField="Stars" HeaderText="כוכבים" />
-                    <asp:BoundField DataField="CurrentStanding" HeaderText="דירוג עכשווי" />
+                    
+                    <asp:TemplateField HeaderText="שם הקבוצה">
+                        <ItemTemplate>
+                            <%# Eval("TeamName") %>
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:TextBox ID="txtTeamName" runat="server" Text='<%# Bind("TeamName") %>' Width="95%" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    
+                    <asp:TemplateField HeaderText="אליפויות">
+                        <ItemTemplate>
+                            <%# Eval("Championships") %>
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:TextBox ID="txtChampionships" runat="server" Text='<%# Bind("Championships") %>' Width="95%" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    
+                    <asp:TemplateField HeaderText="שחקנים בולטים">
+                        <ItemTemplate>
+                            <%# Eval("Stars") %>
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:TextBox ID="txtStars" runat="server" Text='<%# Bind("Stars") %>' Width="95%" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    
+                    <asp:TemplateField HeaderText="דירוג עכשווי">
+                        <ItemTemplate>
+                            <%# Eval("CurrentStanding") %>
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:TextBox ID="txtCurrentStanding" runat="server" Text='<%# Bind("CurrentStanding") %>' Width="95%" />
+                        </EditItemTemplate>
+                    </asp:TemplateField>
                 </Columns>
             </asp:GridView>
             
             <div style="margin-top: 20px; text-align: center;">
-                <asp:HyperLink ID="AddTeamLink" runat="server" NavigateUrl="EditTeam.aspx?mode=add" 
-                             CssClass="add-team-button" style="text-decoration: none; color: white;"
-                             Visible="false">
-                    הוסף קבוצה חדשה
-                </asp:HyperLink>
+                <asp:Button ID="AddTeamButton" runat="server" Text="הוסף קבוצה חדשה" 
+                             CssClass="add-team-button" OnClick="AddTeamButton_Click"
+                             Visible="false" />
             </div>
         </div>
     </div>

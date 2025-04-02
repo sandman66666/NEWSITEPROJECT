@@ -7,12 +7,10 @@ namespace NEWSITEPROJECT
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Remove the teamLogo reference since we're using SVG in the aspx file
             if (!IsPostBack)
             {
-                if (teamLogo != null)
-                {
-                    teamLogo.Src = ResolveClientUrl("~/images/hapoelTelvaviv.png");
-                }
+                // This space intentionally left empty
             }
         }
     }

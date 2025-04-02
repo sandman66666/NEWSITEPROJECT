@@ -9,9 +9,19 @@ namespace NEWSITEPROJECT
         {
             if (!IsPostBack)
             {
-                string imagePath = ResolveUrl("~/images1/schoolLogo.png");
-                schoolLogo.ImageUrl = imagePath;
+                try
+                {
+                    string imagePath = ResolveUrl("~/images1/schoolLogo.png");
+                    if (schoolLogo != null)
+                    {
+                        schoolLogo.ImageUrl = imagePath;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error loading school logo: " + ex.Message);
+                }
             }
         }
     }
-}https://localhost:44321/Default.aspx.cs
+}

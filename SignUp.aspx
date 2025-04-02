@@ -1,145 +1,158 @@
 <%@ Page Title="הרשמה" Language="C#" MasterPageFile="~/MasterPage.master" %>
 
 <script runat="server">
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!IsPostBack)
+        {
+            UserNameTextBox.Text = "";
+            PasswordTextBox.Text = "";
+            EmailTextBox.Text = "";
+        }
+    }
+
     protected void SignUpButton_Click(object sender, EventArgs e)
     {
-        string username = UserNameTextBox.Text;
-        string password = PasswordTextBox.Text;
-        string email = EmailTextBox.Text;
-        
+        string username = UserNameTextBox.Text.Trim();
+        string password = PasswordTextBox.Text.Trim();
+        string email = EmailTextBox.Text.Trim();
+
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(email))
         {
-            ErrorLabel.Text = "יש למלא את כל השדות";
-            ErrorLabel.Visible = true;
+            ShowMessage("יש למלא את כל השדות");
             return;
         }
-        
+
+        if (username.Length < 3)
+        {
+            ShowMessage("שם המשתמש צריך להכיל לפחות 3 תווים");
+            return;
+        }
+
+        if (password.Length < 6)
+        {
+            ShowMessage("הסיסמה צריכה להכיל לפחות 6 תווים");
+            return;
+        }
+
+        if (!email.Contains("@") || !email.Contains("."))
+        {
+            ShowMessage("כתובת אימייל לא חוקית");
+            return;
+        }
+
         try
         {
-            string usersXmlPath = Server.MapPath("~/App_Data/Users.xml");
-            
-            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
-            if (System.IO.File.Exists(usersXmlPath))
+            if (DatabaseHelper.UsernameExists(username))
             {
-                doc.Load(usersXmlPath);
-            }
-            else
-            {
-                System.Xml.XmlElement root = doc.CreateElement("Users");
-                doc.AppendChild(root);
-            }
-
-            System.Xml.XmlNode existingUser = doc.SelectSingleNode("//User[Username='" + username + "']");
-            if (existingUser != null)
-            {
-                ErrorLabel.Text = "שם משתמש כבר קיים במערכת";
-                ErrorLabel.Visible = true;
+                ShowMessage("שם המשתמש כבר קיים במערכת, נא לבחור שם אחר");
                 return;
             }
 
-            System.Xml.XmlElement userElement = doc.CreateElement("User");
-            
-            System.Xml.XmlElement usernameElement = doc.CreateElement("Username");
-            usernameElement.InnerText = username;
-            userElement.AppendChild(usernameElement);
-            
-            System.Xml.XmlElement passwordElement = doc.CreateElement("Password");
-            passwordElement.InnerText = password; // Simple plain text password for first-year student level
-            userElement.AppendChild(passwordElement);
-            
-            System.Xml.XmlElement emailElement = doc.CreateElement("Email");
-            emailElement.InnerText = email;
-            userElement.AppendChild(emailElement);
-            
-            System.Xml.XmlElement roleElement = doc.CreateElement("UserRole");
-            roleElement.InnerText = "user"; // Default role is 'user'
-            userElement.AppendChild(roleElement);
-            
-            doc.DocumentElement.AppendChild(userElement);
-            doc.Save(usersXmlPath);
-            
-            Response.Redirect("SignIn.aspx");
+            if (DatabaseHelper.RegisterUser(username, password, email))
+            {
+                ShowMessage("ההרשמה הושלמה בהצלחה!", true);
+                
+                string script = "setTimeout(function() { window.location = 'SignIn.aspx'; }, 2000);";
+                ScriptManager.RegisterStartupScript(this, GetType(), "RedirectScript", script, true);
+            }
+            else
+            {
+                ShowMessage("אירעה שגיאה במהלך ההרשמה, נא לנסות שוב מאוחר יותר");
+            }
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
-            ErrorLabel.Text = "שגיאה בהרשמה: " + ex.Message;
-            ErrorLabel.Visible = true;
+            ShowMessage("אירעה שגיאה: " + ex.Message);
         }
+    }
+
+    private void ShowMessage(string message, bool isSuccess = false)
+    {
+        ResultLabel.Text = message;
+        
+        ResultLabel.CssClass = isSuccess ? "result-message success" : "result-message error";
+        
+        ResultLabel.Visible = true;
     }
 </script>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
-    <style>
-        .register-container {
+    <style type="text/css">
+        .signup-container {
             max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            direction: rtl;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
-        
-        .form-title {
-            font-size: 24px;
-            color: #333;
+        .page-title {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 30px;
             text-align: center;
+        }
+        .form-group {
             margin-bottom: 20px;
         }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: bold;
+            color: #555;
         }
-        
-        .form-group input {
+        .form-control {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
         }
-        
+        .form-control:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
         .btn-signup {
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 10px 0;
-            width: 100%;
-            font-size: 16px;
+            padding: 12px 30px;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 16px;
+            width: 100%;
             margin-top: 10px;
         }
-        
         .btn-signup:hover {
             background-color: #45a049;
         }
-        
-        .error-message {
-            color: #e74c3c;
-            background-color: #fadbd8;
+        .result-message {
+            margin-top: 20px;
             padding: 10px;
-            margin-bottom: 15px;
             border-radius: 4px;
             text-align: center;
         }
-        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
         .login-link {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 20px;
         }
-        
         .login-link a {
-            color: #3498db;
+            color: #4CAF50;
             text-decoration: none;
         }
-        
         .login-link a:hover {
             text-decoration: underline;
         }
@@ -147,33 +160,49 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
-    <div class="register-container">
-        <h2 class="form-title">הרשמה</h2>
-        
-        <asp:Label ID="ErrorLabel" runat="server" CssClass="error-message" Visible="false"></asp:Label>
+    <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
+    <div class="signup-container">
+        <h2 class="page-title">הרשמה לאתר</h2>
         
         <div class="form-group">
-            <asp:Label ID="UserNameLabel" runat="server" Text="שם משתמש:"></asp:Label>
-            <asp:TextBox ID="UserNameTextBox" runat="server"></asp:TextBox>
+            <label for="UserNameTextBox">שם משתמש:</label>
+            <asp:TextBox ID="UserNameTextBox" runat="server" CssClass="form-control"></asp:TextBox>
+            <asp:RequiredFieldValidator ID="UserNameValidator" runat="server" 
+                ControlToValidate="UserNameTextBox" 
+                ErrorMessage="שם משתמש הוא שדה חובה" 
+                ForeColor="Red" Display="Dynamic"></asp:RequiredFieldValidator>
         </div>
         
         <div class="form-group">
-            <asp:Label ID="PasswordLabel" runat="server" Text="סיסמה:"></asp:Label>
-            <asp:TextBox ID="PasswordTextBox" runat="server" TextMode="Password"></asp:TextBox>
+            <label for="PasswordTextBox">סיסמה:</label>
+            <asp:TextBox ID="PasswordTextBox" runat="server" TextMode="Password" CssClass="form-control"></asp:TextBox>
+            <asp:RequiredFieldValidator ID="PasswordValidator" runat="server" 
+                ControlToValidate="PasswordTextBox" 
+                ErrorMessage="סיסמה היא שדה חובה" 
+                ForeColor="Red" Display="Dynamic"></asp:RequiredFieldValidator>
         </div>
         
         <div class="form-group">
-            <asp:Label ID="EmailLabel" runat="server" Text="דואר אלקטרוני:"></asp:Label>
-            <asp:TextBox ID="EmailTextBox" runat="server"></asp:TextBox>
+            <label for="EmailTextBox">אימייל:</label>
+            <asp:TextBox ID="EmailTextBox" runat="server" CssClass="form-control"></asp:TextBox>
+            <asp:RequiredFieldValidator ID="EmailValidator" runat="server" 
+                ControlToValidate="EmailTextBox" 
+                ErrorMessage="אימייל הוא שדה חובה" 
+                ForeColor="Red" Display="Dynamic"></asp:RequiredFieldValidator>
+            <asp:RegularExpressionValidator ID="EmailFormatValidator" runat="server" 
+                ControlToValidate="EmailTextBox" 
+                ValidationExpression="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" 
+                ErrorMessage="כתובת אימייל לא חוקית" 
+                ForeColor="Red" Display="Dynamic"></asp:RegularExpressionValidator>
         </div>
         
-        <asp:Button ID="SignUpButton" runat="server" Text="הירשם" 
-                    CssClass="btn-signup" OnClick="SignUpButton_Click" />
+        <asp:Button ID="SignUpButton" runat="server" Text="הרשמה" 
+                     OnClick="SignUpButton_Click" CssClass="btn-signup" />
+        
+        <asp:Label ID="ResultLabel" runat="server" CssClass="result-message" Visible="false"></asp:Label>
         
         <div class="login-link">
-            <asp:HyperLink ID="LoginLink" runat="server" NavigateUrl="~/SignIn.aspx">
-                כבר יש לך חשבון? התחבר כאן
-            </asp:HyperLink>
+            <p>כבר רשום? <a href="SignIn.aspx">התחבר כאן</a></p>
         </div>
     </div>
 </asp:Content>

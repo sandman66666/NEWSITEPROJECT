@@ -1,13 +1,74 @@
 <%@ Page Title="מחיקת קבוצה" Language="C#" MasterPageFile="~/MasterPage.master" %>
+<%@ Import Namespace="System.Data" %>
+
+<script runat="server">
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!IsPostBack)
+        {
+            string teamName = Request.QueryString["team"];
+            
+            if (Session["Username"] == null || (Session["UserRole"] != null && Session["UserRole"].ToString().ToLower() != "admin"))
+            {
+                Response.Redirect("TeamsTable.aspx");
+                return;
+            }
+            
+            if (!string.IsNullOrEmpty(teamName))
+            {
+                TeamNameLabel.Text = teamName;
+            }
+            else
+            {
+                Response.Redirect("TeamsTable.aspx");
+            }
+        }
+    }
+    
+    protected void ConfirmButton_Click(object sender, EventArgs e)
+    {
+        string teamName = Request.QueryString["team"];
+        if (!string.IsNullOrEmpty(teamName))
+        {
+            try
+            {
+                bool success = DatabaseHelper.DeleteTeam(teamName);
+                if (success)
+                {
+                    ResultLabel.Text = "הקבוצה " + teamName + " נמחקה בהצלחה";
+                    ResultLabel.CssClass = "result-message success";
+                    ConfirmButton.Visible = false;
+                    CancelButton.Text = "חזרה לרשימת הקבוצות";
+                }
+                else
+                {
+                    ResultLabel.Text = "שגיאה במחיקת הקבוצה";
+                    ResultLabel.CssClass = "result-message error";
+                }
+            }
+            catch (Exception ex)
+            {
+                ResultLabel.Text = "שגיאה: " + ex.Message;
+                ResultLabel.CssClass = "result-message error";
+            }
+        }
+    }
+    
+    protected void CancelButton_Click(object sender, EventArgs e)
+    {
+        Response.Redirect("TeamsTable.aspx");
+    }
+</script>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
-    <style>
+    <style type="text/css">
         .delete-container {
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
             background-color: white;
-            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             text-align: center;
         }
         
@@ -24,8 +85,10 @@
         }
         
         .delete-message {
-            font-size: 18px;
+            color: #555;
+            font-size: 16px;
             margin-bottom: 30px;
+            line-height: 1.5;
         }
         
         .team-name {
@@ -33,146 +96,78 @@
             color: #e74c3c;
         }
         
-        .button-container {
-            margin-top: 30px;
-        }
-        
-        .delete-button, .cancel-button {
-            padding: 10px 20px;
-            margin: 0 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
         .delete-button {
             background-color: #e74c3c;
             color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .delete-button:hover {
+            background-color: #c0392b;
         }
         
         .cancel-button {
-            background-color: #3498db;
+            background-color: #7f8c8d;
             color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .cancel-button:hover {
+            background-color: #6c7a7d;
         }
         
         .result-message {
-            padding: 10px;
             margin-top: 20px;
+            padding: 10px;
             border-radius: 4px;
+            font-weight: bold;
         }
         
         .success {
-            background-color: #2ecc71;
-            color: white;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
         
         .error {
-            background-color: #e74c3c;
-            color: white;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
-    <div class="delete-container">
-        <div class="warning-icon">⚠️</div>
-        <h2 class="delete-title">מחיקת קבוצה</h2>
-        
-        <p class="delete-message">
-            האם אתה בטוח שברצונך למחוק את הקבוצה 
-            <span class="team-name"><asp:Label ID="TeamNameLabel" runat="server"></asp:Label></span>?
-            <br />
-            פעולה זו לא ניתנת לביטול.
-        </p>
-        
-        <asp:Label ID="ResultLabel" runat="server" Visible="false"></asp:Label>
-        
-        <div class="button-container">
-            <asp:Button ID="ConfirmButton" runat="server" Text="כן, מחק את הקבוצה" 
-                       CssClass="delete-button" OnClick="ConfirmButton_Click" />
-            <asp:Button ID="CancelButton" runat="server" Text="ביטול" 
-                       CssClass="cancel-button" OnClick="CancelButton_Click" />
+    <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
+    <div style="text-align: center; padding: 40px 20px;">
+        <div class="delete-container">
+            <div class="warning-icon">⚠️</div>
+            <h2 class="delete-title">מחיקת קבוצה</h2>
+            
+            <p class="delete-message">
+                האם אתה בטוח שברצונך למחוק את הקבוצה <asp:Label ID="TeamNameLabel" runat="server" CssClass="team-name"></asp:Label>?
+                <br />
+                פעולה זו אינה ניתנת לביטול.
+            </p>
+            
+            <div>
+                <asp:Button ID="ConfirmButton" runat="server" Text="כן, מחק את הקבוצה" 
+                    OnClick="ConfirmButton_Click" CssClass="delete-button" />
+                
+                <asp:Button ID="CancelButton" runat="server" Text="ביטול" 
+                    OnClick="CancelButton_Click" CssClass="cancel-button" />
+            </div>
+            
+            <asp:Label ID="ResultLabel" runat="server" CssClass="result-message"></asp:Label>
         </div>
     </div>
-
-    <script runat="server">
-        protected void Page_Load(object sender, EventArgs e)
-        {
-            if (!IsPostBack)
-            {
-                string teamName = Request.QueryString["team"];
-                
-                if (Session["UserRole"] == null || Session["UserRole"].ToString().ToLower() != "admin")
-                {
-                    Response.Redirect("TeamsTable.aspx");
-                    return;
-                }
-                
-                if (!string.IsNullOrEmpty(teamName))
-                {
-                    TeamNameLabel.Text = teamName;
-                }
-                else
-                {
-                    Response.Redirect("TeamsTable.aspx");
-                }
-            }
-        }
-        
-        protected void ConfirmButton_Click(object sender, EventArgs e)
-        {
-            string teamName = Request.QueryString["team"];
-            if (!string.IsNullOrEmpty(teamName))
-            {
-                try
-                {
-                    string teamsXmlPath = Server.MapPath("~/App_Data/Teams.xml");
-                    
-                    if (System.IO.File.Exists(teamsXmlPath))
-                    {
-                        System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
-                        doc.Load(teamsXmlPath);
-                        
-                        System.Xml.XmlNode teamNode = doc.SelectSingleNode("//Team[TeamName='" + teamName + "']");
-                        
-                        if (teamNode != null && teamNode.ParentNode != null)
-                        {
-                            teamNode.ParentNode.RemoveChild(teamNode);
-                            doc.Save(teamsXmlPath);
-                            
-                            ResultLabel.Text = "הקבוצה " + teamName + " נמחקה בהצלחה";
-                            ResultLabel.CssClass = "result-message success";
-                            ResultLabel.Visible = true;
-                            ConfirmButton.Visible = false;
-                            CancelButton.Text = "חזרה לרשימת הקבוצות";
-                        }
-                        else
-                        {
-                            ResultLabel.Text = "הקבוצה לא נמצאה";
-                            ResultLabel.CssClass = "result-message error";
-                            ResultLabel.Visible = true;
-                        }
-                    }
-                    else
-                    {
-                        ResultLabel.Text = "קובץ הקבוצות לא נמצא";
-                        ResultLabel.CssClass = "result-message error";
-                        ResultLabel.Visible = true;
-                    }
-                }
-                catch (System.Exception ex)
-                {
-                    ResultLabel.Text = "שגיאה: " + ex.Message;
-                    ResultLabel.CssClass = "result-message error";
-                    ResultLabel.Visible = true;
-                }
-            }
-        }
-        
-        protected void CancelButton_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("TeamsTable.aspx");
-        }
-    </script>
 </asp:Content>

@@ -11,7 +11,6 @@
             string username = Session["Username"] != null ? Session["Username"].ToString() : "";
             string role = Session["UserRole"] != null ? Session["UserRole"].ToString() : "";
 
-            // Handle logged-in user display
             UserInfoLabel.Text = "שלום, " + username;
 
             if (role == "admin")
@@ -95,6 +94,24 @@
             padding: 15px 0;
             margin-top: 30px;
         }
+        .auth-section {
+            display: flex;
+            align-items: center;
+        }
+        .auth-links a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            margin: 0 5px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .auth-links a:hover {
+            background-color: #45a049;
+        }
+        .user-info {
+            color: white;
+        }
     </style>
     <asp:ContentPlaceHolder ID="head" runat="server">
     </asp:ContentPlaceHolder>
@@ -129,7 +146,7 @@
 
         <footer class="footer">
             <div class="footer-content">
-                <p>&copy; <%: DateTime.Now.Year %> - האתר של עילי ענתבי</p>
+                <p>&copy; <%: DateTime.Now.Year %> - אתר קבוצות הכדורגל בישראל</p>
             </div>
         </footer>
     </form>

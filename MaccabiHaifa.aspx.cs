@@ -7,10 +7,10 @@ namespace NEWSITEPROJECT
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Remove the teamLogo reference since we're using SVG in the aspx file
             if (!IsPostBack)
             {
-                string imagePath = ResolveUrl("~/images/macabiHJaifa.jpeg");
-                teamLogo.ImageUrl = imagePath;
+                // This space intentionally left empty
             }
         }
     }

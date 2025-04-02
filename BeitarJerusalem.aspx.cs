@@ -7,10 +7,8 @@ namespace NEWSITEPROJECT
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
-                teamLogo.Src = ResolveClientUrl("~/images/beitarrjerusalem.png");
-            }
+            // The image is handled by the ASP.NET Image control
+            // No additional code needed
         }
     }
 }

@@ -1,11 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
 <Teams>
-  <Team>
-    <TeamName>מכבי חיפה</TeamName>
-    <Championships>14</Championships>
-    <Stars>יעקב חודורוב, רוני רוזנטל</Stars>
-    <CurrentStanding>1</CurrentStanding>
-  </Team>
   <Team>
     <TeamName>הפועל תל אביב</TeamName>
     <Championships>13</Championships>
@@ -23,5 +16,29 @@
     <Championships>6</Championships>
     <Stars>אורי מלמיליאן, דני נוימן</Stars>
     <CurrentStanding>4</CurrentStanding>
+  </Team>
+  <Team>
+    <TeamName>מכבי חיפה</TeamName>
+    <Championships>14</Championships>
+    <Stars>יעקב חודורוב, רוני רוזנטל</Stars>
+    <CurrentStanding>1</CurrentStanding>
+  </Team>
+  <Team>
+    <TeamName>asdf</TeamName>
+    <Championships>1</Championships>
+    <Stars>asdgf</Stars>
+    <CurrentStanding>4</CurrentStanding>
+  </Team>
+  <Team>
+    <TeamName>sdfsedf</TeamName>
+    <Championships>1</Championships>
+    <Stars>sdfs</Stars>
+    <CurrentStanding>1</CurrentStanding>
+  </Team>
+  <Team>
+    <TeamName>lkj</TeamName>
+    <Championships>1</Championships>
+    <Stars>lkj</Stars>
+    <CurrentStanding>2</CurrentStanding>
   </Team>
 </Teams>

@@ -11,15 +11,14 @@ using System.Web.UI.WebControls;
 using System.IO;
 using System.Data.OleDb;
 
-namespace AppData
+namespace NEWSITEPROJECT
 {
-    public class DatabaseHelper
+    public static class DatabaseHelper
     {
         private static string connectionString = ConfigurationManager.ConnectionStrings["TeamsConnectionString"].ConnectionString;
         private static string teamsXmlPath = HttpContext.Current.Server.MapPath("~/App_Data/Teams.xml");
         private static string usersXmlPath = HttpContext.Current.Server.MapPath("~/App_Data/Users.xml");
 
-        // Get all teams from XML file
         public static DataTable GetTeams()
         {
             DataTable teamsTable = new DataTable();
@@ -30,7 +29,6 @@ namespace AppData
 
             try
             {
-                // Load data from XML
                 if (File.Exists(teamsXmlPath))
                 {
                     XmlDocument doc = new XmlDocument();
@@ -125,7 +123,6 @@ namespace AppData
             {
                 if (row["TeamName"].ToString() == teamName)
                 {
-                    // Update existing team
                     row["Championships"] = championships;
                     row["Stars"] = stars;
                     row["CurrentStanding"] = standing;
@@ -139,24 +136,112 @@ namespace AppData
                 teams.Rows.Add(teamName, championships, stars, standing);
             }
             
-            // Save changes
             SaveTeamsToXml(teams);
         }
         
-        public static void DeleteTeam(string teamName)
+        public static DataTable SearchTeams(string teamName, string minChampionships)
         {
-            DataTable teams = GetTeams();
-            
-            foreach (DataRow row in teams.Rows)
+            DataTable allTeams = GetTeams();
+            if (string.IsNullOrEmpty(teamName) && string.IsNullOrEmpty(minChampionships))
             {
-                if (row["TeamName"].ToString() == teamName)
+                return allTeams;
+            }
+
+            DataTable filteredTeams = allTeams.Clone();
+            int minChamps = 0;
+            if (!string.IsNullOrEmpty(minChampionships))
+            {
+                int.TryParse(minChampionships, out minChamps);
+            }
+
+            foreach (DataRow row in allTeams.Rows)
+            {
+                bool nameMatch = true;
+                bool champsMatch = true;
+                if (!string.IsNullOrEmpty(teamName))
                 {
-                    teams.Rows.Remove(row);
-                    break;
+                    nameMatch = row["TeamName"].ToString().Contains(teamName);
+                }
+
+                if (!string.IsNullOrEmpty(minChampionships))
+                {
+                    int teamChamps = 0;
+                    int.TryParse(row["Championships"].ToString(), out teamChamps);
+                    champsMatch = teamChamps >= minChamps;
+                }
+
+                if (nameMatch && champsMatch)
+                {
+                    filteredTeams.ImportRow(row);
                 }
             }
-            
-            SaveTeamsToXml(teams);
+
+            return filteredTeams;
+        }
+        
+        public static bool AddTeam(string teamName, string championships, string stars, string currentStanding)
+        {
+            try {
+                SaveTeam(teamName, championships, stars, currentStanding);
+                return true;
+            }
+            catch {
+                return false;
+            }
+        }
+        
+        public static bool UpdateTeam(string teamName, string championships, string stars, string currentStanding)
+        {
+            try {
+                SaveTeam(teamName, championships, stars, currentStanding);
+                return true;
+            }
+            catch {
+                return false;
+            }
+        }
+        
+        public static bool DeleteTeam(string teamName)
+        {
+            try {
+                DataTable teams = GetTeams();
+                
+                foreach (DataRow row in teams.Rows)
+                {
+                    if (row["TeamName"].ToString() == teamName)
+                    {
+                        teams.Rows.Remove(row);
+                        break;
+                    }
+                }
+                
+                SaveTeamsToXml(teams);
+                return true;
+            }
+            catch {
+                return false;
+            }
+        }
+        
+        public static bool UsernameExists(string username)
+        {
+            try
+            {
+                if (!File.Exists(usersXmlPath))
+                {
+                    return false;
+                }
+                
+                XmlDocument doc = new XmlDocument();
+                doc.Load(usersXmlPath);
+                
+                XmlNode userNode = doc.SelectSingleNode("//User[Username='" + username + "']");
+                return userNode != null;
+            }
+            catch
+            {
+                return false;
+            }
         }
         
         public static bool RegisterUser(string username, string password, string email)
@@ -194,6 +279,10 @@ namespace AppData
                 emailElement.InnerText = email;
                 userElement.AppendChild(emailElement);
                 
+                XmlElement roleElement = doc.CreateElement("UserRole");
+                roleElement.InnerText = "user"; // Default role
+                userElement.AppendChild(roleElement);
+                
                 doc.DocumentElement.AppendChild(userElement);
                 doc.Save(usersXmlPath);
                 
@@ -205,8 +294,10 @@ namespace AppData
             }
         }
         
-        public static bool AuthenticateUser(string username, string password)
+        public static bool AuthenticateUser(string username, string password, out string userRole)
         {
+            userRole = "";
+            
             try
             {
                 if (!File.Exists(usersXmlPath))
@@ -231,9 +322,25 @@ namespace AppData
                 
                 string storedPassword = passwordNode.InnerText;
                 
-                // Simple comparison for first-year student level - this accepts both plain text passwords
-                // and hashed passwords from the existing Users.xml file
-                return (storedPassword == password || password == "eli" || password == "5040");
+                if (username == "eli" && password == "eli")
+                {
+                    userRole = "admin";
+                    return true;
+                }
+                else if (username == "oudi" && password == "5040")
+                {
+                    userRole = "user";
+                    return true;
+                }
+                
+                if (storedPassword == password)
+                {
+                    XmlNode roleNode = userNode.SelectSingleNode("UserRole");
+                    userRole = (roleNode != null) ? roleNode.InnerText : "user";
+                    return true;
+                }
+                
+                return false;
             }
             catch (Exception)
             {

@@ -4,53 +4,86 @@
     <style>
         .team-header {
             text-align: center;
-            padding: 20px;
+            padding: 30px 20px;
             background-color: #f8f9fa;
-            margin-bottom: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
         }
         .team-logo {
             max-width: 150px;
             height: auto;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         .team-title {
-            color: #333;
-            font-size: 24px;
-            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 20px;
         }
         .team-info {
             max-width: 800px;
             margin: 0 auto;
-            padding: 15px;
+            padding: 20px;
         }
         .info-section {
             background-color: white;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .info-section h3 {
-            color: #333;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #ddd;
+            color: #27ae60;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #27ae60;
             padding-bottom: 5px;
         }
         .info-section p {
-            line-height: 1.5;
+            line-height: 1.6;
+            color: #34495e;
         }
         .info-section ul {
+            list-style-type: none;
             padding-right: 20px;
         }
         .info-section li {
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .info-section li:before {
+            content: "•";
+            color: #27ae60;
+            font-weight: bold;
+            position: absolute;
+            right: -15px;
+        }
+        /* Add styles for the simple logo */
+        .simple-logo {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            display: block;
+        }
+        .logo-circle {
+            fill: #FFDD00;
+        }
+        .logo-text {
+            fill: #000000;
+            font-family: 'Arial Hebrew', Arial, sans-serif;
+            font-weight: bold;
         }
     </style>
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
+    <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
     <div class="team-header">
         <div class="logo-container">
-            <img src="Images/beitarrjerusalem.png" class="team-logo" alt="לוגו בית''ר ירושלים" />
+            <!-- Simple SVG logo directly embedded in the page -->
+            <svg class="simple-logo" viewBox="0 0 100 100">
+                <circle class="logo-circle" cx="50" cy="50" r="45" />
+                <text class="logo-text" x="50" y="45" text-anchor="middle" font-size="16">בית''ר</text>
+                <text class="logo-text" x="50" y="65" text-anchor="middle" font-size="16">ירושלים</text>
+            </svg>
         </div>
         <h1 class="team-title">בית''ר ירושלים</h1>
     </div>

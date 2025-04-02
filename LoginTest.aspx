@@ -225,6 +225,13 @@
             
             <asp:Button ID="TestButton" runat="server" Text="Test Login" OnClick="TestButton_Click" CssClass="btn" />
             
+            <div style="margin-top: 15px; padding: 10px; background-color: #f0f0f0; border: 1px solid #ddd; border-radius: 4px;">
+                <h4 style="margin-top: 0;">Login Credentials</h4>
+                <p><strong>Admin:</strong> Username: eli, Password: eli</p>
+                <p><strong>Regular User:</strong> Username: oudi, Password: 5040</p>
+                <p>Or <a href="#">create your account</a></p>
+            </div>
+            
             <asp:Panel ID="ResultPanel" runat="server" CssClass="result-panel" Visible="false">
                 <h3>Test Results</h3>
                 <asp:Literal ID="ResultLabel" runat="server"></asp:Literal>

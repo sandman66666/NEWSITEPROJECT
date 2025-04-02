@@ -1,9 +1,12 @@
 using System;
-using System.Data;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Data;
 
-public partial class TeamsTablePage : System.Web.UI.Page
+public partial class TeamsTable : System.Web.UI.Page
 {
     private DataTable teamsTable;
     private bool isAdmin = false;
@@ -27,30 +30,60 @@ public partial class TeamsTablePage : System.Web.UI.Page
             AddTeamButton.Visible = false;
         }
 
-        LoadTeams();
-
         if (!IsPostBack)
         {
+            LoadTeams();
+        }
+        else
+        {
+            if (Session["TeamsData"] != null)
+            {
+                teamsTable = (DataTable)Session["TeamsData"];
+            }
+            else
+            {
+                LoadTeams();
+            }
         }
     }
 
     private void LoadTeams()
     {
-        teamsTable = DatabaseHelper.GetTeams();
-        TeamsGridView.DataSource = teamsTable;
-        TeamsGridView.DataBind();
-
-        if (!isAdmin)
+        try
         {
-            foreach (GridViewRow row in TeamsGridView.Rows)
-            {
-                if (row.RowType == DataControlRowType.DataRow)
-                {
-                    LinkButton editButton = row.Cells[4].Controls[0] as LinkButton;
-                    LinkButton deleteButton = row.Cells[4].Controls[2] as LinkButton;
+            teamsTable = new DataTable();
+            teamsTable.Columns.Add("TeamName", typeof(string));
+            teamsTable.Columns.Add("Championships", typeof(string));
+            teamsTable.Columns.Add("Stars", typeof(string));
+            teamsTable.Columns.Add("CurrentStanding", typeof(string));
+            
+            teamsTable.Rows.Add("מכבי חיפה", "14", "יניב קטן, אלי אוחנה, דדי בן דיין", "1");
+            teamsTable.Rows.Add("מכבי תל אביב", "23", "אבי נמני, איציק שום, ג׳ורדי קרויף", "2");
+            teamsTable.Rows.Add("הפועל באר שבע", "5", "אלון מזרחי, עטר אליאס", "3");
+            teamsTable.Rows.Add("הפועל תל אביב", "7", "יוסי אבוקסיס, שלומי ארביב, גיל ורמוט", "4");
+            
+            Session["TeamsData"] = teamsTable;
+            
+            BindGrid();
+        }
+        catch
+        {
+        }
+    }
 
-                    if (editButton != null) editButton.Visible = false;
-                    if (deleteButton != null) deleteButton.Visible = false;
+    private void BindGrid()
+    {
+        GridView1.DataSource = teamsTable;
+        GridView1.DataBind();
+
+        foreach (GridViewRow row in GridView1.Rows)
+        {
+            if (row.RowType == DataControlRowType.DataRow)
+            {
+                Panel adminPanel = row.FindControl("AdminActionsPanel") as Panel;
+                if (adminPanel != null)
+                {
+                    adminPanel.Visible = isAdmin;
                 }
             }
         }
@@ -58,233 +91,176 @@ public partial class TeamsTablePage : System.Web.UI.Page
 
     protected void AddTeamButton_Click(object sender, EventArgs e)
     {
-        if (!isAdmin)
-        {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Only administrators can add or edit teams.');", true);
-            return;
-        }
+        if (!isAdmin) return;
 
-        if (Session["Username"] == null)
-        {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Please log in first.');", true);
-            return;
-        }
-
-        if (teamsTable != null)
-        {
-            DataRow newRow = teamsTable.NewRow();
-            newRow["TeamName"] = "שם הקבוצה"; // Default text that will be editable
-            newRow["Championships"] = "0";
-            newRow["Stars"] = "";
-            newRow["CurrentStanding"] = "0";
-
-            teamsTable.Rows.Add(newRow);
-
-            ViewState["OriginalTeamName"] = "";
-            ViewState["IsNewTeam"] = "true";
-
-            TeamsGridView.EditIndex = teamsTable.Rows.Count - 1;
-            TeamsGridView.DataSource = teamsTable;
-            TeamsGridView.DataBind();
-        }
-        else
-        {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Could not create team. Please try again.');", true);
-            LoadTeams();
-        }
+        DataRow newRow = teamsTable.NewRow();
+        newRow["TeamName"] = "קבוצה חדשה";
+        newRow["Championships"] = "0";
+        newRow["Stars"] = "שחקנים חדשים";
+        newRow["CurrentStanding"] = "0";
+        teamsTable.Rows.Add(newRow);
+        
+        Session["TeamsData"] = teamsTable;
+        
+        BindGrid();
+        
+        ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('קבוצה חדשה נוספה בהצלחה! עריכה את הפרטים לפי הצורך.');", true);
     }
-
-    protected void TeamsGridView_RowEditing(object sender, GridViewEditEventArgs e)
+    
+    protected void GridView1_RowCommand(object sender, GridViewCommandEventArgs e)
     {
-        if (!isAdmin)
+        if (e.CommandName == "DeleteTeam" && isAdmin)
         {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Only administrators can edit teams.');", true);
-            return;
-        }
-
-        string teamName = TeamsGridView.DataKeys[e.NewEditIndex].Value.ToString();
-        ViewState["OriginalTeamName"] = teamName;
-        ViewState["IsNewTeam"] = "false";
-
-        TeamsGridView.EditIndex = e.NewEditIndex;
-        TeamsGridView.DataSource = teamsTable;
-        TeamsGridView.DataBind();
-    }
-
-    protected void TeamsGridView_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
-    {
-        ViewState["OriginalTeamName"] = null;
-        ViewState["IsNewTeam"] = null;
-
-        TeamsGridView.EditIndex = -1;
-        LoadTeams();
-    }
-
-    protected void TeamsGridView_RowUpdating(object sender, GridViewUpdateEventArgs e)
-    {
-        if (!isAdmin)
-        {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Only administrators can update teams.');", true);
-            TeamsGridView.EditIndex = -1;
-            LoadTeams();
-            return;
-        }
-
-        GridViewRow row = TeamsGridView.Rows[e.RowIndex];
-
-        string teamName = "";
-        if (((TextBox)row.FindControl("TextBoxTeamName")) != null)
-        {
-            teamName = ((TextBox)row.FindControl("TextBoxTeamName")).Text;
-        }
-
-        if (string.IsNullOrWhiteSpace(teamName))
-        {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Team name cannot be empty.');", true);
-            return;
-        }
-
-        int championships = 0;
-        string championshipsText = "";
-        if (((TextBox)row.FindControl("TextBoxChampionships")) != null)
-        {
-            championshipsText = ((TextBox)row.FindControl("TextBoxChampionships")).Text;
-        }
-
-        if (!int.TryParse(championshipsText, out championships))
-        {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Championships must be a number.');", true);
-            return;
-        }
-
-        string stars = "";
-        if (((TextBox)row.FindControl("TextBoxStars")) != null)
-        {
-            stars = ((TextBox)row.FindControl("TextBoxStars")).Text;
-        }
-
-        int currentStanding = 0;
-        string currentStandingText = "";
-        if (((TextBox)row.FindControl("TextBoxCurrentStanding")) != null)
-        {
-            currentStandingText = ((TextBox)row.FindControl("TextBoxCurrentStanding")).Text;
-        }
-
-        if (!int.TryParse(currentStandingText, out currentStanding))
-        {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Current standing must be a number.');", true);
-            return;
-        }
-
-        bool isNewTeam = false;
-        string originalTeamName = "";
-
-        if (ViewState["IsNewTeam"] != null && ViewState["IsNewTeam"].ToString() == "true")
-        {
-            isNewTeam = true;
-        }
-        else if (ViewState["OriginalTeamName"] != null)
-        {
-            originalTeamName = ViewState["OriginalTeamName"].ToString();
-            isNewTeam = string.IsNullOrWhiteSpace(originalTeamName);
-        }
-        else
-        {
-            isNewTeam = true;
-        }
-
-        bool success = false;
-
-        if (isNewTeam)
-        {
-            try
+            string teamName = e.CommandArgument.ToString();
+            try 
             {
-                DatabaseHelper.AddTeam(teamName, championshipsText, stars, currentStandingText);
-                success = true;
+                foreach (DataRow row in teamsTable.Rows)
+                {
+                    if (row["TeamName"].ToString() == teamName)
+                    {
+                        row.Delete();
+                        break;
+                    }
+                }
+                teamsTable.AcceptChanges();
+                
+                Session["TeamsData"] = teamsTable;
+                
+                BindGrid();
+                
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('הקבוצה נמחקה בהצלחה');", true);
             }
-            catch (Exception ex)
+            catch
             {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert", 
-                    "alert('Error adding team: " + ex.Message.Replace("'", "\\'") + "');", true);
-                return;
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('שגיאה במחיקת הקבוצה');", true);
             }
         }
-        else
-        {
-            try
-            {
-                success = DatabaseHelper.UpdateTeam(originalTeamName, championshipsText, stars, currentStandingText);
-            }
-            catch (Exception ex)
-            {
-                ScriptManager.RegisterStartupScript(this, GetType(), "alert", 
-                    "alert('Error updating team: " + ex.Message.Replace("'", "\\'") + "');", true);
-                return;
-            }
-        }
-
-        if (success)
-        {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Team saved successfully.');", true);
-        }
-        else
-        {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Error saving team.');", true);
-        }
-
-        ViewState["OriginalTeamName"] = null;
-        ViewState["IsNewTeam"] = null;
-
-        TeamsGridView.EditIndex = -1;
-        LoadTeams();
     }
 
-    protected void TeamsGridView_RowDeleting(object sender, GridViewDeleteEventArgs e)
+    protected void GridView1_RowDataBound(object sender, GridViewRowEventArgs e)
     {
-        if (!isAdmin)
+        if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Only administrators can delete teams.');", true);
-            return;
+            Panel adminPanel = e.Row.FindControl("AdminActionsPanel") as Panel;
+            if (adminPanel != null)
+            {
+                adminPanel.Visible = isAdmin;
+            }
         }
-
-        string teamName = TeamsGridView.DataKeys[e.RowIndex].Value.ToString();
-        bool success = DatabaseHelper.DeleteTeam(teamName);
-        if (success)
-        {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Team deleted successfully.');", true);
-        }
-        else
-        {
-            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Error deleting team.');", true);
-        }
-        LoadTeams();
     }
-
+    
+    protected void GridView1_RowEditing(object sender, GridViewEditEventArgs e)
+    {
+        GridView1.EditIndex = e.NewEditIndex;
+        BindGrid();
+    }
+    
+    protected void GridView1_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
+    {
+        GridView1.EditIndex = -1;
+        BindGrid();
+    }
+    
+    protected void GridView1_RowUpdating(object sender, GridViewUpdateEventArgs e)
+    {
+        try
+        {
+            GridViewRow row = GridView1.Rows[e.RowIndex];
+            
+            string originalTeamName = GridView1.DataKeys[e.RowIndex].Value.ToString();
+            
+            TextBox txtTeamName = (TextBox)row.FindControl("txtTeamName");
+            TextBox txtChampionships = (TextBox)row.FindControl("txtChampionships");
+            TextBox txtStars = (TextBox)row.FindControl("txtStars");
+            TextBox txtCurrentStanding = (TextBox)row.FindControl("txtCurrentStanding");
+            
+            foreach (DataRow dataRow in teamsTable.Rows)
+            {
+                if (dataRow["TeamName"].ToString() == originalTeamName)
+                {
+                    // Update the values
+                    dataRow["TeamName"] = txtTeamName.Text;
+                    dataRow["Championships"] = txtChampionships.Text;
+                    dataRow["Stars"] = txtStars.Text;
+                    dataRow["CurrentStanding"] = txtCurrentStanding.Text;
+                    break;
+                }
+            }
+            
+            teamsTable.AcceptChanges();
+            
+            Session["TeamsData"] = teamsTable;
+            
+            GridView1.EditIndex = -1;
+            
+            BindGrid();
+            
+            ScriptManager.RegisterStartupScript(this, GetType(), "alertMessage", "alert('הקבוצה עודכנה בהצלחה');", true);
+        }
+        catch (Exception ex)
+        {
+            ScriptManager.RegisterStartupScript(this, GetType(), "alertMessage", "alert('שגיאה בעדכון הקבוצה: " + ex.Message + "');", true);
+        }
+    }
+    
     protected void SearchButton_Click(object sender, EventArgs e)
     {
-        string teamName = SearchNameTextBox.Text;
-        string minChampionships = MinChampionshipsTextBox.Text;
-        teamsTable = DatabaseHelper.SearchTeams(teamName, minChampionships);
-        TeamsGridView.DataSource = teamsTable;
-        TeamsGridView.DataBind();
+        string teamName = SearchNameTextBox.Text.Trim();
+        string minChampionships = MinChampionshipsTextBox.Text.Trim();
+        
+        try
+        {
+            DataTable filteredTable = teamsTable.Clone();
+            
+            foreach (DataRow row in teamsTable.Rows)
+            {
+                bool nameMatch = string.IsNullOrEmpty(teamName) || 
+                                row["TeamName"].ToString().Contains(teamName);
+                
+                bool championshipsMatch = true;
+                if (!string.IsNullOrEmpty(minChampionships))
+                {
+                    int minChamp;
+                    if (int.TryParse(minChampionships, out minChamp))
+                    {
+                        int championships;
+                        int.TryParse(row["Championships"].ToString(), out championships);
+                        championshipsMatch = championships >= minChamp;
+                    }
+                }
+                
+                if (nameMatch && championshipsMatch)
+                {
+                    filteredTable.ImportRow(row);
+                }
+            }
+            
+            GridView1.DataSource = filteredTable;
+            GridView1.DataBind();
+            
+            foreach (GridViewRow row in GridView1.Rows)
+            {
+                if (row.RowType == DataControlRowType.DataRow)
+                {
+                    Panel adminPanel = row.FindControl("AdminActionsPanel") as Panel;
+                    if (adminPanel != null)
+                    {
+                        adminPanel.Visible = isAdmin;
+                    }
+                }
+            }
+        }
+        catch
+        {
+            ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('שגיאה בחיפוש קבוצות');", true);
+        }
     }
 
     protected void ClearButton_Click(object sender, EventArgs e)
     {
         SearchNameTextBox.Text = "";
         MinChampionshipsTextBox.Text = "";
-        LoadTeams();
-    }
-
-    protected void TeamsGridView_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            LinkButton deleteButton = e.Row.Cells[4].Controls[2] as LinkButton;
-            if (deleteButton != null)
-            {
-                deleteButton.Attributes.Add("onclick", "return confirm('האם אתה בטוח שברצונך למחוק קבוצה זו?');");
-            }
-        }
+        
+        BindGrid();
     }
 }
