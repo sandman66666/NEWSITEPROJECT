@@ -18,4 +18,10 @@
     <Email>teacher@teacher.com</Email>
     <UserRole>user</UserRole>
   </User>
+  <User>
+    <Username>jonjon</Username>
+    <Password>tush5040</Password>
+    <Email>oudiantebi@hotmail.com</Email>
+    <UserRole>user</UserRole>
+  </User>
 </Users>

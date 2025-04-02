@@ -7,7 +7,6 @@ namespace NEWSITEPROJECT
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // This page shows static content about why this subject was chosen
         }
 
         protected override void FrameworkInitialize()

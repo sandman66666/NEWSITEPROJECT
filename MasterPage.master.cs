@@ -28,11 +28,9 @@ namespace NEWSITEPROJECT
             }
             else
             {
-                // Handle logged-out user display
                 UserInfoLabel.Visible = false;
                 authLinks.Visible = true;
 
-                // Redirect if not on sign-in or sign-up pages
                 string currentPage = System.IO.Path.GetFileName(Request.Path);
 
                 if (!currentPage.Equals("SignIn.aspx", StringComparison.OrdinalIgnoreCase) &&

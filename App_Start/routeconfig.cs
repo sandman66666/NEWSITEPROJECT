@@ -4,7 +4,6 @@ namespace NEWSITEPROJECT
     {
         public static void RegisterRoutes(System.Web.Routing.RouteCollection routes)
         {
-            // Empty implementation - nothing to register
         }
     }
 }

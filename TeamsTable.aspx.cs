@@ -10,7 +10,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        // Check if user is logged in and has admin rights
         if (Session["Username"] != null)
         {
             string username = Session["Username"].ToString();
@@ -21,12 +20,10 @@ public partial class TeamsTablePage : System.Web.UI.Page
             }
             isAdmin = userRole.ToLower() == "admin";
 
-            // Show/hide add button and controls based on role
             AddTeamButton.Visible = isAdmin;
         }
         else
         {
-            // Hide editing controls for non-logged-in users
             AddTeamButton.Visible = false;
         }
 
@@ -34,7 +31,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
 
         if (!IsPostBack)
         {
-            // First-time initialization code can go here
         }
     }
 
@@ -44,18 +40,15 @@ public partial class TeamsTablePage : System.Web.UI.Page
         TeamsGridView.DataSource = teamsTable;
         TeamsGridView.DataBind();
 
-        // Hide edit/delete buttons for non-admin users
         if (!isAdmin)
         {
             foreach (GridViewRow row in TeamsGridView.Rows)
             {
                 if (row.RowType == DataControlRowType.DataRow)
                 {
-                    // Find all the command buttons
                     LinkButton editButton = row.Cells[4].Controls[0] as LinkButton;
                     LinkButton deleteButton = row.Cells[4].Controls[2] as LinkButton;
 
-                    // Hide them for non-admin users
                     if (editButton != null) editButton.Visible = false;
                     if (deleteButton != null) deleteButton.Visible = false;
                 }
@@ -65,7 +58,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
 
     protected void AddTeamButton_Click(object sender, EventArgs e)
     {
-        // Only allow admins to add teams
         if (!isAdmin)
         {
             ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Only administrators can add or edit teams.');", true);
@@ -80,7 +72,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
 
         if (teamsTable != null)
         {
-            // Add a new blank row for editing
             DataRow newRow = teamsTable.NewRow();
             newRow["TeamName"] = "שם הקבוצה"; // Default text that will be editable
             newRow["Championships"] = "0";
@@ -89,7 +80,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
 
             teamsTable.Rows.Add(newRow);
 
-            // Set ViewState to indicate this is a new team
             ViewState["OriginalTeamName"] = "";
             ViewState["IsNewTeam"] = "true";
 
@@ -106,14 +96,12 @@ public partial class TeamsTablePage : System.Web.UI.Page
 
     protected void TeamsGridView_RowEditing(object sender, GridViewEditEventArgs e)
     {
-        // Only allow admins to edit teams
         if (!isAdmin)
         {
             ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Only administrators can edit teams.');", true);
             return;
         }
 
-        // Store the original team name for later use in updating
         string teamName = TeamsGridView.DataKeys[e.NewEditIndex].Value.ToString();
         ViewState["OriginalTeamName"] = teamName;
         ViewState["IsNewTeam"] = "false";
@@ -125,7 +113,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
 
     protected void TeamsGridView_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
     {
-        // Clear any ViewState variables we set
         ViewState["OriginalTeamName"] = null;
         ViewState["IsNewTeam"] = null;
 
@@ -135,7 +122,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
 
     protected void TeamsGridView_RowUpdating(object sender, GridViewUpdateEventArgs e)
     {
-        // Only allow admins to update teams
         if (!isAdmin)
         {
             ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Only administrators can update teams.');", true);
@@ -146,7 +132,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
 
         GridViewRow row = TeamsGridView.Rows[e.RowIndex];
 
-        // Get team name and validate it's not empty
         string teamName = "";
         if (((TextBox)row.FindControl("TextBoxTeamName")) != null)
         {
@@ -191,7 +176,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
             return;
         }
 
-        // Determine if this is a new team or an update
         bool isNewTeam = false;
         string originalTeamName = "";
 
@@ -213,7 +197,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
 
         if (isNewTeam)
         {
-            // Adding a new team
             try
             {
                 DatabaseHelper.AddTeam(teamName, championshipsText, stars, currentStandingText);
@@ -228,7 +211,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
         }
         else
         {
-            // Updating existing team
             try
             {
                 success = DatabaseHelper.UpdateTeam(originalTeamName, championshipsText, stars, currentStandingText);
@@ -250,7 +232,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
             ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Error saving team.');", true);
         }
 
-        // Clear ViewState variables
         ViewState["OriginalTeamName"] = null;
         ViewState["IsNewTeam"] = null;
 
@@ -260,7 +241,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
 
     protected void TeamsGridView_RowDeleting(object sender, GridViewDeleteEventArgs e)
     {
-        // Only allow admins to delete teams
         if (!isAdmin)
         {
             ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('Only administrators can delete teams.');", true);
@@ -300,7 +280,6 @@ public partial class TeamsTablePage : System.Web.UI.Page
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            // Add confirmation dialog to the delete button in the command field
             LinkButton deleteButton = e.Row.Cells[4].Controls[2] as LinkButton;
             if (deleteButton != null)
             {

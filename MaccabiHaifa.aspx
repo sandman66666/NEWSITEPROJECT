@@ -4,66 +4,53 @@
     <style>
         .team-header {
             text-align: center;
-            padding: 30px 20px;
+            padding: 20px;
             background-color: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         .team-logo {
             max-width: 150px;
             height: auto;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .team-title {
-            color: #2c3e50;
-            font-size: 2.5em;
-            margin-bottom: 20px;
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 15px;
         }
         .team-info {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
         }
         .info-section {
             background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
         }
         .info-section h3 {
-            color: #27ae60;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #27ae60;
+            color: #333;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
             padding-bottom: 5px;
         }
         .info-section p {
-            line-height: 1.6;
-            color: #34495e;
+            line-height: 1.5;
         }
         .info-section ul {
-            list-style-type: none;
             padding-right: 20px;
         }
         .info-section li {
-            margin-bottom: 10px;
-            position: relative;
-        }
-        .info-section li:before {
-            content: "•";
-            color: #27ae60;
-            font-weight: bold;
-            position: absolute;
-            right: -15px;
+            margin-bottom: 5px;
         }
     </style>
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
-    <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
     <div class="team-header">
         <div class="logo-container">
-            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxITEhUSExIVFRUVFRcVGBUXFRUVFRYXFRUWFxUVFRUYHSggGBolHRUVITEiJSorLi4uFx8zODMtNygtLisBCgoKDg0OGhAQGy0mHyYvLS0tKy0tLSstLy0tLS0tLS0tLS0tLi0vLy0rLS0tLS0tLS0tLS0tLS0tLy0tLS0tLf/AABEIAOEA4QMBIgACEQEDEQH/xAAcAAABBAMBAAAAAAAAAAAAAAADAAECBgQFBwj/xABOEAACAQMBBQYEBgcEBgcJAAABAgMABBEhBQYSMUEHEyJRYXGBkRQyQlKhsRUjYnKC0fAzkpPBCBdDU1SyNXSis9LT8RYkNDZzg8LD4f/EABkBAAMBAQEAAAAAAAAAAAAAAAABAgMEBf/EADARAAICAQMCAwUIAwAAAAAAAAABAhEDEiExQVEEYXETIoGR8CMyQlKhscHRFOHx" class="team-logo" alt="לוגו מכבי חיפה" />
+            <img src="Images/macabiHJaifa.jpeg" class="team-logo" alt="לוגו מכבי חיפה" />
         </div>
         <h1 class="team-title">מכבי חיפה</h1>
     </div>

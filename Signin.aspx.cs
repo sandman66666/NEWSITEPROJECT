@@ -15,7 +15,6 @@ namespace NEWSITEPROJECT
                     Session.Clear();
                     Session.Abandon();
 
-                    // Use ScriptManager for better alert handling
                     ScriptManager.RegisterStartupScript(this, GetType(), "alertScript",
                         "alert('התנתקת בהצלחה');", true);
 
@@ -36,14 +35,12 @@ namespace NEWSITEPROJECT
             string password = PasswordTextBox.Text.Trim();
             string userRole = "";
 
-            // Validate input
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 ShowMessage("נא למלא שם משתמש וסיסמה");
                 return;
             }
 
-            // Authenticate
             if (DatabaseHelper.AuthenticateUser(username, password, out userRole))
             {
                 Session["LoggedIn"] = true;
@@ -61,7 +58,6 @@ namespace NEWSITEPROJECT
 
         private void ShowMessage(string message)
         {
-            // Use ScriptManager for better alert handling
             ScriptManager.RegisterStartupScript(this, GetType(), "alertScript",
                 string.Format("alert('{0}');", message), true);
         }
